@@ -167,8 +167,8 @@ export default function AIAgent() {
 
   const suggestions = [
     "Who hasn't paid yet?",
-    "What did I just buy?",
     "How much did I just spend?",
+    "What did I just buy?",
     "Send reminders to everyone"
   ]
 
@@ -254,9 +254,9 @@ export default function AIAgent() {
           {/* Chat History Badges */}
           <div className="flex items-center gap-2 mb-3 py-1">
             <div className="flex-shrink-0">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={startNewChat}
                 className={`h-8 text-[10px] font-bold uppercase tracking-wider rounded-lg border-primary/20 text-primary bg-primary/5 gap-1.5 ${!currentSessionId ? 'ring-1 ring-primary/30' : ''}`}
               >
@@ -264,22 +264,20 @@ export default function AIAgent() {
                 New
               </Button>
             </div>
-            
+
             <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar relative">
               {sessions.map((s) => (
                 <div
                   key={s.id}
-                  className={`flex-shrink-0 flex items-center rounded-lg border transition-all overflow-hidden ${
-                    currentSessionId === s.id 
-                    ? "bg-primary border-primary shadow-md shadow-primary/20" 
-                    : "bg-white border-border shadow-sm hover:border-primary/50"
-                  }`}
+                  className={`flex-shrink-0 flex items-center rounded-lg border transition-all overflow-hidden ${currentSessionId === s.id
+                      ? "bg-primary border-primary shadow-md shadow-primary/20"
+                      : "bg-white border-border shadow-sm hover:border-primary/50"
+                    }`}
                 >
                   <button
                     onClick={() => loadSession(s)}
-                    className={`px-3 py-1.5 text-[11px] font-medium whitespace-nowrap flex items-center gap-2 ${
-                      currentSessionId === s.id ? "text-white" : "text-muted-foreground hover:text-foreground"
-                    }`}
+                    className={`px-3 py-1.5 text-[11px] font-medium whitespace-nowrap flex items-center gap-2 ${currentSessionId === s.id ? "text-white" : "text-muted-foreground hover:text-foreground"
+                      }`}
                   >
                     <MessageSquare className={`h-3 w-3 ${currentSessionId === s.id ? "text-white" : "text-muted-foreground"}`} />
                     {s.title}
@@ -289,17 +287,16 @@ export default function AIAgent() {
                       e.stopPropagation();
                       deleteSession(s.id);
                     }}
-                    className={`px-2 py-1.5 flex items-center justify-center border-l transition-all ${
-                      currentSessionId === s.id
-                      ? "text-white/70 border-white/20 hover:text-white hover:bg-destructive"
-                      : "text-muted-foreground border-border hover:text-destructive hover:bg-destructive/5"
-                    }`}
+                    className={`px-2 py-1.5 flex items-center justify-center border-l transition-all ${currentSessionId === s.id
+                        ? "text-white/70 border-white/20 hover:text-white hover:bg-destructive"
+                        : "text-muted-foreground border-border hover:text-destructive hover:bg-destructive/5"
+                      }`}
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </div>
               ))}
-              
+
               {sessions.length === 0 && (
                 <div className="text-[10px] text-muted-foreground italic px-2 flex items-center gap-1.5">
                   <Clock className="h-3 w-3" />

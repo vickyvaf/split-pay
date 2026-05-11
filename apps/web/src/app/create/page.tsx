@@ -96,7 +96,7 @@ export default function CreateBill() {
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % carouselItems.length)
-    }, 5000)
+    }, 3000)
     return () => clearInterval(timer)
   }, [carouselItems.length])
 
@@ -164,7 +164,7 @@ export default function CreateBill() {
   // 1. Choice View (Matches Screenshot)
   if (mode === "choice") {
     return (
-      <div className="space-y-6 py-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-foreground">Choose your method</h1>
           <p className="text-muted-foreground text-sm">How would you like to add the expenses?</p>
