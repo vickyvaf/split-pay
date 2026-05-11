@@ -6,6 +6,7 @@ import { TopBar } from '@/components/top-bar';
 import { BottomNav } from '@/components/bottom-nav';
 import { Footer } from '@/components/footer';
 import { WalletProvider } from "@/components/wallet-provider"
+import { ChatProvider } from "@/context/chat-context"
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,16 +24,18 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
         <WalletProvider>
-          <div className="min-h-screen flex flex-col">
-            <TopBar />
-            <main className="flex-1 pt-16 pb-20">
-              <div className="container max-w-md mx-auto px-4 py-6">
-                {children}
-              </div>
-              {/* <Footer /> */}
-            </main>
-          </div>
-          <BottomNav />
+          <ChatProvider>
+            <div className="min-h-screen flex flex-col">
+              <TopBar />
+              <main className="flex-1 pt-16 pb-20">
+                <div className="container max-w-md mx-auto px-4 py-6">
+                  {children}
+                </div>
+                {/* <Footer /> */}
+              </main>
+            </div>
+            <BottomNav />
+          </ChatProvider>
         </WalletProvider>
       </body>
     </html>
