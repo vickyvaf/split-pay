@@ -1,14 +1,14 @@
 "use client"
 
+import { cn } from "@/lib/utils"
+import { Bot, HandCoins, History, Home } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Wallet, Sparkles, History } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 const navItems = [
   { name: "Home", href: "/", icon: Home },
-  { name: "Bill", href: "/create", icon: Wallet },
-  { name: "AI Chat", href: "/ai", icon: Sparkles },
+  { name: "Bill", href: "/create", icon: HandCoins },
+  { name: "AI Chat", href: "/ai", icon: Bot },
   { name: "History", href: "/history", icon: History },
 ]
 
