@@ -120,7 +120,7 @@ export default function HistoryPage() {
                 <h2 className="text-white text-xl font-bold">{selectedItem.name}</h2>
               </div>
               
-              <div className="p-6 space-y-6 overflow-y-auto">
+              <div className="p-6 space-y-6 overflow-y-auto flex-1">
                 <div className="flex justify-between items-center bg-muted/30 p-4 rounded-2xl">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Amount</p>
@@ -194,7 +194,7 @@ export default function HistoryPage() {
                   </div>
                 </div>
 
-                <div className="pt-4 pb-8">
+                <div className="pt-4 pb-12">
                   <button 
                     onClick={() => setIsDetailOpen(false)}
                     className="w-full bg-muted/50 hover:bg-muted py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors"

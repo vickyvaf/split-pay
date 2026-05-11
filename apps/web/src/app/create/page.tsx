@@ -497,7 +497,7 @@ export default function CreateBill() {
             </Card>
 
             <Button
-              className="w-full rounded-xl text-sm font-bold shadow-md shadow-primary/20 h-12"
+              className="w-full rounded-xl text-sm font-bold h-12"
               onClick={() => setScanStep("processing")}
             >
               Analyze with AI
