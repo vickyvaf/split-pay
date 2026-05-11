@@ -22,6 +22,7 @@ interface ChatContextType {
   setCurrentSessionId: React.Dispatch<React.SetStateAction<string | null>>;
   sessions: ChatSession[];
   setSessions: React.Dispatch<React.SetStateAction<ChatSession[]>>;
+  deleteSession: (id: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -43,6 +44,20 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [])
+
+  const deleteSession = (id: string) => {
+    const updated = sessions.filter(s => s.id !== id)
+    setSessions(updated)
+    localStorage.setItem("chat_sessions", JSON.stringify(updated))
+    
+    // If we deleted the current session, reset the chat
+    if (currentSessionId === id) {
+      setCurrentSessionId(null)
+      setMessages([
+        { role: "bot", content: "Hi! I'm your SplitPay Assistant. I've analyzed your billing history. How can I help you today?" }
+      ])
+    }
+  }
 
   // Auto-save current session when messages change
   useEffect(() => {
@@ -80,7 +95,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       currentSessionId, 
       setCurrentSessionId,
       sessions,
-      setSessions
+      setSessions,
+      deleteSession
     }}>
       {children}
     </ChatContext.Provider>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send, User, Bot, Mic, MicOff, RefreshCw, Pencil, Plus, MessageSquare, Clock } from "lucide-react"
+import { Send, User, Bot, Mic, MicOff, RefreshCw, Pencil, Plus, MessageSquare, Clock, X } from "lucide-react"
 
 import { GoogleGenerativeAI } from "@google/generative-ai"
 
@@ -39,7 +39,7 @@ If they ask "what did I buy recently", look at the most recent entries in the hi
 Be concise, friendly, and helpful. Always refer to amounts in cUSD.`;
 
 export default function AIAgent() {
-  const { messages, setMessages, currentSessionId, setCurrentSessionId, sessions, setSessions } = useChat()
+  const { messages, setMessages, currentSessionId, setCurrentSessionId, sessions, deleteSession } = useChat()
   const [input, setInput] = useState("")
   const [isListening, setIsListening] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -267,18 +267,37 @@ export default function AIAgent() {
             
             <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar relative">
               {sessions.map((s) => (
-                <button
+                <div
                   key={s.id}
-                  onClick={() => loadSession(s)}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all border whitespace-nowrap flex items-center gap-2 ${
+                  className={`flex-shrink-0 flex items-center rounded-lg border transition-all overflow-hidden ${
                     currentSessionId === s.id 
-                    ? "bg-primary text-white border-primary shadow-md shadow-primary/20" 
-                    : "bg-white text-muted-foreground border-border hover:border-primary/50 hover:text-foreground shadow-sm"
+                    ? "bg-primary border-primary shadow-md shadow-primary/20" 
+                    : "bg-white border-border shadow-sm hover:border-primary/50"
                   }`}
                 >
-                  <MessageSquare className={`h-3 w-3 ${currentSessionId === s.id ? "text-white" : "text-muted-foreground"}`} />
-                  {s.title}
-                </button>
+                  <button
+                    onClick={() => loadSession(s)}
+                    className={`px-3 py-1.5 text-[11px] font-medium whitespace-nowrap flex items-center gap-2 ${
+                      currentSessionId === s.id ? "text-white" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <MessageSquare className={`h-3 w-3 ${currentSessionId === s.id ? "text-white" : "text-muted-foreground"}`} />
+                    {s.title}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteSession(s.id);
+                    }}
+                    className={`px-2 py-1.5 flex items-center justify-center border-l transition-all ${
+                      currentSessionId === s.id
+                      ? "text-white/70 border-white/20 hover:text-white hover:bg-destructive"
+                      : "text-muted-foreground border-border hover:text-destructive hover:bg-destructive/5"
+                    }`}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
               ))}
               
               {sessions.length === 0 && (
