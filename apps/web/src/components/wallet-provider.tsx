@@ -5,7 +5,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { injectedWallet } from "@rainbow-me/rainbowkit/wallets";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { WagmiProvider, createConfig, http, useConnect } from "wagmi";
+import { WagmiProvider, createConfig, http, useConnect, useConnectors } from "wagmi";
 import { celo, celoSepolia } from "wagmi/chains";
 import { ConnectButton } from "./connect-button";
 
@@ -35,11 +35,13 @@ const wagmiConfig = createConfig({
 const queryClient = new QueryClient();
 
 function WalletProviderInner({ children }: { children: React.ReactNode }) {
-  const { connect, connectors } = useConnect();
+  const { connect } = useConnect();
+  const connectors = useConnectors();
 
   useEffect(() => {
     // Check if the app is running inside MiniPay
-    if (window.ethereum && window.ethereum.isMiniPay) {
+    const eth = (window as any).ethereum;
+    if (eth && eth.isMiniPay) {
       // Find the injected connector, which is what MiniPay uses
       const injectedConnector = connectors.find((c) => c.id === "injected");
       if (injectedConnector) {
