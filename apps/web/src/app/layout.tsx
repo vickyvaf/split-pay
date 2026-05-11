@@ -23,17 +23,16 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
         <WalletProvider>
-          <div className="relative min-h-screen">
+          <div className="min-h-screen flex flex-col">
             <TopBar />
-            <main className="pt-16">
+            <main className="flex-1 pt-16 pb-20">
               <div className="container max-w-md mx-auto px-4 py-6">
                 {children}
               </div>
               {/* <Footer /> */}
-              <div className="h-24" /> {/* Spacer to clear BottomNav */}
             </main>
-            <BottomNav />
           </div>
+          <BottomNav />
         </WalletProvider>
       </body>
     </html>

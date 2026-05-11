@@ -16,34 +16,36 @@ export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-[32px] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] border-t border-gray-100">
-      <nav className="flex items-center justify-around w-full max-w-lg mx-auto h-20 px-4">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href
+    <div className="fixed bottom-0 left-0 right-0 z-[100] flex justify-center pointer-events-none">
+      <div className="w-full max-w-md bg-white border-t border-gray-100 pointer-events-auto pb-[env(safe-area-inset-bottom)]">
+        <nav className="flex items-center justify-around w-full h-20 px-4">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 transition-all relative min-w-[70px] h-16 rounded-2xl",
-                isActive ? "text-[#047857]" : "text-slate-400"
-              )}
-            >
-              <item.icon
-                size={24}
-                strokeWidth={isActive ? 2.5 : 2}
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
                 className={cn(
-                  "transition-transform active:scale-95",
+                  "flex flex-col items-center justify-center gap-1 transition-all relative min-w-[70px] h-16 rounded-2xl",
+                  isActive ? "text-[#047857]" : "text-slate-400"
                 )}
-              />
-              <span className="text-[12px] font-medium tracking-tight">
-                {item.name}
-              </span>
-            </Link>
-          )
-        })}
-      </nav>
+              >
+                <item.icon
+                  size={24}
+                  strokeWidth={isActive ? 2.5 : 2}
+                  className={cn(
+                    "transition-transform active:scale-95",
+                  )}
+                />
+                <span className="text-[12px] font-medium tracking-tight">
+                  {item.name}
+                </span>
+              </Link>
+            )
+          })}
+        </nav>
+      </div>
     </div>
   )
 }
