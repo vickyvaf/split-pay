@@ -43,7 +43,7 @@ export default function Home() {
         <Link href="/create" className="block">
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="p-4 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+              <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-white">
                 <Plus className="h-6 w-6" />
               </div>
               <div className="flex-1">
@@ -60,19 +60,21 @@ export default function Home() {
       <div className="space-y-3">
         <div className="flex justify-between items-center px-1">
           <h2 className="text-lg font-semibold text-foreground">Recent Bills</h2>
-          <Link href="/history">
-            <Button variant="link" size="sm" className="text-primary text-xs p-0 h-auto font-bold">View All</Button>
-          </Link>
+          {bills.length > 0 && (
+            <Link href="/history">
+              <Button variant="link" size="sm" className="text-primary text-xs p-0 h-auto font-bold">View All</Button>
+            </Link>
+          )}
         </div>
 
         {/* Mock Data */}
         <div className="space-y-3">
           {bills.length > 0 ? (
             bills.map((bill) => (
-              <Card key={bill.id} className="border-border shadow-sm rounded-lg hover:bg-muted/10 transition-colors">
+              <Card key={bill.id} className="border-border rounded-lg hover:bg-muted/10 transition-colors">
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center shadow-sm ${bill.status === "Active" ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-600"}`}>
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${bill.status === "Active" ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-600"}`}>
                       <Wallet className="h-5 w-5" />
                     </div>
                     <div>

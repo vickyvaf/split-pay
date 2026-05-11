@@ -218,7 +218,7 @@ export default function CreateBill() {
                 className="flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5"
               >
                 <MessageSquare className="h-3 w-3" />
-                Chat AI
+                Chat
               </button>
               <div className="w-[1px] bg-border/50" />
               <button
