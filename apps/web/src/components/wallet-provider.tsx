@@ -5,7 +5,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { injectedWallet } from "@rainbow-me/rainbowkit/wallets";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { WagmiProvider, createConfig, http, useConnect, useConnectors } from "wagmi";
+import { WagmiProvider, createConfig, http, useConnect, useConnectors, useAccount } from "wagmi";
 import { celo, celoSepolia } from "wagmi/chains";
 import { ConnectButton } from "./connect-button";
 
@@ -18,7 +18,7 @@ const connectors = connectorsForWallets(
   ],
   {
     appName: "split-pay",
-    projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID!,
+    projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || "3fcc6b4444651f9525148f99de2d926a",
   }
 );
 
@@ -37,18 +37,32 @@ const queryClient = new QueryClient();
 function WalletProviderInner({ children }: { children: React.ReactNode }) {
   const { connect } = useConnect();
   const connectors = useConnectors();
+  const { isConnected, isConnecting } = useAccount();
 
   useEffect(() => {
-    // Check if the app is running inside MiniPay
-    const eth = (window as any).ethereum;
-    if (eth && eth.isMiniPay) {
-      // Find the injected connector, which is what MiniPay uses
-      const injectedConnector = connectors.find((c) => c.id === "injected");
-      if (injectedConnector) {
-        connect({ connector: injectedConnector });
+    if (isConnected || isConnecting) return;
+
+    const checkAndConnect = () => {
+      const eth = window.ethereum;
+      if (eth && eth.isMiniPay) {
+        const injectedConnector = connectors.find((c) => c.id === "injected");
+        if (injectedConnector) {
+          connect({ connector: injectedConnector });
+        }
       }
-    }
-  }, [connect, connectors]);
+    };
+
+    checkAndConnect();
+    
+    // Retry after 500ms and 1000ms just in case injection is slow
+    const timer1 = setTimeout(checkAndConnect, 500);
+    const timer2 = setTimeout(checkAndConnect, 1000);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, [connect, connectors, isConnected, isConnecting]);
 
   return <>{children}</>;
 }
