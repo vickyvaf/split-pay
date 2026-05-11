@@ -167,7 +167,6 @@ export default function AIAgent() {
 
   const suggestions = [
     "Who hasn't paid yet?",
-    "How much did I just spend?",
     "What did I just buy?",
     "Send reminders to everyone"
   ]
@@ -270,8 +269,8 @@ export default function AIAgent() {
                 <div
                   key={s.id}
                   className={`flex-shrink-0 flex items-center rounded-lg border transition-all overflow-hidden ${currentSessionId === s.id
-                      ? "bg-primary border-primary shadow-md shadow-primary/20"
-                      : "bg-white border-border shadow-sm hover:border-primary/50"
+                    ? "bg-primary border-primary shadow-md shadow-primary/20"
+                    : "bg-white border-border shadow-sm hover:border-primary/50"
                     }`}
                 >
                   <button
@@ -288,8 +287,8 @@ export default function AIAgent() {
                       deleteSession(s.id);
                     }}
                     className={`px-2 py-1.5 flex items-center justify-center border-l transition-all ${currentSessionId === s.id
-                        ? "text-white/70 border-white/20 hover:text-white hover:bg-destructive"
-                        : "text-muted-foreground border-border hover:text-destructive hover:bg-destructive/5"
+                      ? "text-white/70 border-white/20 hover:text-white hover:bg-destructive"
+                      : "text-muted-foreground border-border hover:text-destructive hover:bg-destructive/5"
                       }`}
                   >
                     <X className="h-3 w-3" />
