@@ -19,7 +19,9 @@ import {
   ChevronRight,
   Aperture,
   MessageSquare,
-  Zap
+  Zap,
+  Mic,
+  MicOff
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { StaticImageData } from "next/image"
@@ -41,7 +43,36 @@ export default function CreateBill() {
   const [scanStep, setScanStep] = useState<"upload" | "processing" | "result">("upload")
   const [activeSlide, setActiveSlide] = useState(0)
   const [isCreating, setIsCreating] = useState(false)
+  const [isListening, setIsListening] = useState(false)
+  const [autoStartVoice, setAutoStartVoice] = useState(false)
   const router = useRouter()
+
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechRecognition) {
+      alert("Voice recognition is not supported in this browser.")
+      return
+    }
+
+    const recognition = new SpeechRecognition()
+    recognition.lang = 'en-US'
+    recognition.continuous = false
+    recognition.interimResults = false
+
+    recognition.onstart = () => setIsListening(true)
+    recognition.onend = () => setIsListening(false)
+    recognition.onerror = (event: any) => {
+      console.error(event.error)
+      setIsListening(false)
+    }
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript
+      setGroupName(prev => prev ? `${prev} ${transcript}` : transcript)
+    }
+
+    recognition.start()
+  }
 
   const carouselItems: CarouselItem[] = [
     {
@@ -67,6 +98,16 @@ export default function CreateBill() {
     }, 5000)
     return () => clearInterval(timer)
   }, [carouselItems.length])
+
+  useEffect(() => {
+    if (mode === "ai" && autoStartVoice) {
+      const timer = setTimeout(() => {
+        startListening()
+        setAutoStartVoice(false)
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [mode, autoStartVoice])
 
   useEffect(() => {
     if (scanStep === "processing") {
@@ -119,7 +160,7 @@ export default function CreateBill() {
               setMode("scan")
               setScanStep("upload")
             }}
-            className="group flex items-center gap-4 bg-primary/5 p-4 rounded-xl shadow-sm border border-primary/20 transition-all active:scale-[0.98] hover:shadow-md cursor-pointer relative z-30"
+            className="group flex items-center gap-4 bg-primary/5 p-4 rounded-xl shadow-sm border border-primary/20 transition-all active:scale-[0.98] cursor-pointer relative z-30"
           >
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
               <Aperture className="h-6 w-6" />
@@ -133,28 +174,56 @@ export default function CreateBill() {
 
           {/* Type with AI */}
           <div
-            role="button"
-            onClick={() => {
-              setMode("ai")
-              setScanStep("upload")
-            }}
-            className="group flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-border transition-all active:scale-[0.98] hover:shadow-md cursor-pointer relative z-30"
+            className="group flex flex-col bg-white rounded-xl shadow-sm border border-border transition-all overflow-hidden relative z-30"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary/30 text-primary">
-              <MessageSquare className="h-6 w-6" />
+            <div
+              role="button"
+              onClick={() => {
+                setMode("ai")
+                setScanStep("upload")
+              }}
+              className="flex items-center gap-4 p-4 active:scale-[0.98] cursor-pointer"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary/30 text-primary">
+                <MessageSquare className="h-6 w-6" />
+              </div>
+              <div className="flex-1 text-left">
+                <h3 className="font-semibold text-foreground text-sm">Type with AI</h3>
+                <p className="text-xs text-muted-foreground">Describe your bill or chat with AI</p>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </div>
-            <div className="flex-1 text-left">
-              <h3 className="font-semibold text-foreground text-sm">Type with AI</h3>
-              <p className="text-xs text-muted-foreground">Describe the bill in plain text</p>
+            <div className="flex border-t border-border/50">
+              <button
+                onClick={() => {
+                  setMode("ai")
+                  setScanStep("upload")
+                }}
+                className="flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <MessageSquare className="h-3 w-3" />
+                Chat AI
+              </button>
+              <div className="w-[1px] bg-border/50" />
+              <button
+                onClick={() => {
+                  setMode("ai")
+                  setScanStep("upload")
+                  setAutoStartVoice(true)
+                }}
+                className="flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Mic className="h-3 w-3" />
+                Voice
+              </button>
             </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </div>
 
           {/* Fill manually */}
           <div
             role="button"
             onClick={() => setMode("manual")}
-            className="group flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-border transition-all active:scale-[0.98] hover:shadow-md cursor-pointer relative z-30"
+            className="group flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-border transition-all active:scale-[0.98] cursor-pointer relative z-30"
           >
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary/30 text-primary">
               <PenLine className="h-6 w-6" />
@@ -265,7 +334,7 @@ export default function CreateBill() {
               </div>
 
               <div
-                className="group relative cursor-pointer flex items-center gap-4 rounded-xl border border-border bg-white p-4 transition-all hover:shadow-md active:scale-[0.98]"
+                className="group relative cursor-pointer flex items-center gap-4 rounded-xl border border-border bg-white p-4 transition-all active:scale-[0.98]"
               >
                 <div className="h-10 w-10 rounded-xl bg-secondary/30 flex items-center justify-center text-primary pointer-events-none">
                   <ImageIcon className="h-5 w-5" />
@@ -390,13 +459,23 @@ export default function CreateBill() {
               <p className="text-muted-foreground text-sm">Describe your bill or paste the text here</p>
             </div>
 
-            <Card className="border-border shadow-sm rounded-xl overflow-hidden bg-white p-4">
+            <Card className="border-border shadow-sm rounded-xl overflow-hidden bg-white p-4 relative">
               <textarea
                 className="w-full h-40 bg-muted/20 border-none focus:ring-0 resize-none p-4 rounded-lg text-sm"
                 placeholder="Example: I paid for dinner at Kemang yesterday, total was 45.50 cUSD for 3 people..."
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
               />
+              <div className="absolute bottom-6 right-6">
+                <Button
+                  size="icon"
+                  variant={isListening ? "destructive" : "secondary"}
+                  className={`h-12 w-12 rounded-full shadow-lg transition-all ${isListening ? 'animate-pulse scale-110' : 'hover:scale-105'}`}
+                  onClick={startListening}
+                >
+                  {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                </Button>
+              </div>
             </Card>
 
             <Button
@@ -493,7 +572,7 @@ export default function CreateBill() {
           className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back
+          Back To Options
         </button>
       </div>
 
