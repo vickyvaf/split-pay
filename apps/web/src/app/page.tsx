@@ -60,7 +60,9 @@ export default function Home() {
       <div className="space-y-3">
         <div className="flex justify-between items-center px-1">
           <h2 className="text-lg font-semibold text-foreground">Recent Bills</h2>
-          <Button variant="link" size="sm" className="text-primary text-xs p-0 h-auto font-bold">View All</Button>
+          <Link href="/history">
+            <Button variant="link" size="sm" className="text-primary text-xs p-0 h-auto font-bold">View All</Button>
+          </Link>
         </div>
 
         {/* Mock Data */}

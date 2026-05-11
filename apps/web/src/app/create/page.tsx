@@ -137,7 +137,23 @@ export default function CreateBill() {
 
   const handleCreateBill = () => {
     setIsCreating(true)
-    // Simulate API call
+
+    // Create new history item
+    const newBill = {
+      id: Date.now(),
+      name: groupName,
+      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+      amount: totalAmount,
+      status: "Pending", // Default status for new bills
+      type: "initiated",
+      members: members.filter(m => m.name || m.address)
+    }
+
+    // Save to localStorage
+    const existingHistory = JSON.parse(localStorage.getItem("billing_history") || "[]")
+    localStorage.setItem("billing_history", JSON.stringify([newBill, ...existingHistory]))
+
+    // Simulate API call and redirect
     setTimeout(() => {
       router.push("/history")
     }, 1500)
@@ -162,7 +178,7 @@ export default function CreateBill() {
             }}
             className="group flex items-center gap-4 bg-primary/5 p-4 rounded-xl shadow-sm border border-primary/20 transition-all active:scale-[0.98] cursor-pointer relative z-30"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white">
               <Aperture className="h-6 w-6" />
             </div>
             <div className="flex-1 text-left">
@@ -461,16 +477,16 @@ export default function CreateBill() {
 
             <Card className="border-border shadow-sm rounded-xl overflow-hidden bg-white p-4 relative">
               <textarea
-                className="w-full h-40 bg-muted/20 border-none focus:ring-0 resize-none p-4 rounded-lg text-sm"
+                className="w-full h-40 bg-muted/20 border-none resize-none p-4 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:ring-offset-0 focus:outline-none transition-all"
                 placeholder="Example: I paid for dinner at Kemang yesterday, total was 45.50 cUSD for 3 people..."
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
               />
-              <div className="absolute bottom-6 right-6">
+              <div className="absolute bottom-8 right-6">
                 <Button
                   size="icon"
                   variant={isListening ? "destructive" : "secondary"}
-                  className={`h-12 w-12 rounded-full shadow-lg transition-all ${isListening ? 'animate-pulse scale-110' : 'hover:scale-105'}`}
+                  className={`h-12 w-12 rounded-full transition-all ${isListening ? 'animate-pulse scale-110' : 'hover:scale-105'}`}
                   onClick={startListening}
                 >
                   {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}

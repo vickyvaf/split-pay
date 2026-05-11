@@ -32,7 +32,7 @@ function BalanceDisplay({ address, token, symbol }: { address: `0x${string}`, to
   });
 
   const isLoading = isNative ? nativeBalance.isLoading : tokenBalance.isLoading;
-  
+
   let formattedBalance = "0.0000";
   if (!isLoading) {
     if (isNative && nativeBalance.data) {
@@ -67,7 +67,7 @@ export function UserBalance() {
 
   if (!isConnected || !address) {
     return (
-      <Card className="bg-primary text-primary-foreground border-none shadow-xl shadow-primary/20">
+      <Card className="bg-primary text-primary-foreground border-none">
         <CardContent className="p-6 text-center">
           <p className="text-sm opacity-80 mb-2">Connect your wallet to see your balance</p>
           <ConnectButton />
@@ -76,15 +76,15 @@ export function UserBalance() {
     );
   }
 
-  const formattedBalance = balance 
+  const formattedBalance = balance
     ? parseFloat(formatUnits(balance as bigint, 18)).toFixed(2)
     : "0.00";
 
   return (
-    <Card className="bg-primary text-primary-foreground border-none shadow-xl shadow-primary/20 overflow-hidden relative">
+    <Card className="bg-primary text-primary-foreground border-none overflow-hidden relative">
       {/* Decorative background element */}
       <div className="absolute -right-4 -top-4 h-24 w-24 bg-white/10 rounded-full blur-2xl"></div>
-      
+
       <CardContent className="p-6 relative">
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -98,7 +98,7 @@ export function UserBalance() {
             <Wallet className="h-5 w-5" />
           </div>
         </div>
-        
+
         <div className="flex gap-2">
           <Button variant="secondary" className="flex-1 font-bold bg-white text-primary hover:bg-white/90">
             Send
