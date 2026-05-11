@@ -41,7 +41,7 @@ export default function Home() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 gap-4">
         <Link href="/create" className="block">
-          <Card className="hover:shadow-md transition-shadow border-primary/20 bg-primary/5">
+          <Card className="border-primary/20 bg-primary/5">
             <CardContent className="p-4 flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
                 <Plus className="h-6 w-6" />
