@@ -6,7 +6,7 @@ import { Plus, Users, ArrowRight, Wallet, User } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "wagmi";
-import { truncateAddress } from "@/lib/app-utils";
+import { truncateAddress, formatAmount } from "@/lib/app-utils";
 
 interface Bill {
   id: number;
@@ -83,7 +83,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-sm text-foreground">{bill.amount} cUSD</div>
+                    <div className="font-bold text-sm text-foreground">{formatAmount(bill.amount)} cUSD</div>
                     <div className={`text-[10px] font-bold uppercase tracking-wider ${bill.status === "Active" ? "text-orange-500" : "text-green-500"}`}>{bill.status}</div>
                   </div>
                 </CardContent>

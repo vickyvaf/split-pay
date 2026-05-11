@@ -23,6 +23,7 @@ import {
   Mic,
   MicOff
 } from "lucide-react"
+import { formatAmount } from "@/lib/app-utils"
 import { useRouter } from "next/navigation"
 import type { StaticImageData } from "next/image"
 import scene1 from "@/assets/image-scene-1.jpg"
@@ -124,6 +125,7 @@ export default function CreateBill() {
   }
 
   const removeMember = (index: number) => {
+    if (members.length <= 1) return
     setMembers(members.filter((_, i) => i !== index))
   }
 
@@ -133,7 +135,7 @@ export default function CreateBill() {
     setMembers(newMembers)
   }
 
-  const splitAmount = totalAmount ? (parseFloat(totalAmount) / (members.length + 1)).toFixed(2) : "0.00"
+  const splitAmount = formatAmount(totalAmount ? (parseFloat(totalAmount) / (members.length + 1)) : 0, 2)
 
   const handleCreateBill = () => {
     setIsCreating(true)
@@ -670,14 +672,16 @@ export default function CreateBill() {
                 </div>
                 <div className="text-right flex items-center gap-2">
                   <div className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-1 rounded-md">{splitAmount}</div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground rounded-lg transition-all active:scale-90"
-                    onClick={() => removeMember(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {members.length > 1 && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground rounded-lg transition-all active:scale-90"
+                      onClick={() => removeMember(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>

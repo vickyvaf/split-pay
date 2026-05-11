@@ -2,6 +2,7 @@
 
 import { useAccount, useReadContract, useBalance } from "wagmi";
 import { erc20Abi, formatUnits } from "viem";
+import { formatAmount } from "@/lib/app-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Wallet } from "lucide-react";
@@ -33,13 +34,13 @@ function BalanceDisplay({ address, token, symbol }: { address: `0x${string}`, to
 
   const isLoading = isNative ? nativeBalance.isLoading : tokenBalance.isLoading;
 
-  let formattedBalance = "0.0000";
+  let formattedBalance = "0";
   if (!isLoading) {
     if (isNative && nativeBalance.data) {
-      formattedBalance = parseFloat(formatUnits(nativeBalance.data.value, nativeBalance.data.decimals)).toFixed(4);
+      formattedBalance = formatAmount(formatUnits(nativeBalance.data.value, nativeBalance.data.decimals), 4);
     } else if (token && tokenBalance.data !== undefined) {
       const decimals = (symbol === "USDC" || symbol === "USDT") ? 6 : 18;
-      formattedBalance = parseFloat(formatUnits(tokenBalance.data as bigint, decimals)).toFixed(4);
+      formattedBalance = formatAmount(formatUnits(tokenBalance.data as bigint, decimals), 4);
     }
   }
 
@@ -77,8 +78,8 @@ export function UserBalance() {
   }
 
   const formattedBalance = balance
-    ? parseFloat(formatUnits(balance as bigint, 18)).toFixed(2)
-    : "0.00";
+    ? formatAmount(formatUnits(balance as bigint, 18), 2)
+    : "0";
 
   return (
     <Card className="bg-primary text-primary-foreground border-none overflow-hidden relative">

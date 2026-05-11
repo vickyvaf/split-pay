@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { History, CheckCircle2, Clock, ChevronRight, Users } from "lucide-react"
+import { formatAmount } from "@/lib/app-utils"
 
 import {
   Sheet,
@@ -79,7 +80,7 @@ export default function HistoryPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <p className="font-bold text-sm text-foreground">{item.amount} cUSD</p>
+                      <p className="font-bold text-sm text-foreground">{formatAmount(item.amount)} cUSD</p>
                       <div className="flex items-center justify-end gap-1">
                         {item.status === "Completed" ? (
                           <CheckCircle2 className="h-3 w-3 text-green-600" />
@@ -123,7 +124,7 @@ export default function HistoryPage() {
                 <div className="flex justify-between items-center bg-muted/30 p-4 rounded-2xl">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Amount</p>
-                    <p className="text-2xl font-bold text-foreground">{selectedItem.amount} cUSD</p>
+                    <p className="text-2xl font-bold text-foreground">{formatAmount(selectedItem.amount)} cUSD</p>
                   </div>
                   <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                     selectedItem.status === "Completed" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
@@ -147,7 +148,7 @@ export default function HistoryPage() {
                         </div>
                       </div>
                       <p className="text-xs font-bold text-primary">
-                        {(parseFloat(selectedItem.amount) / ((selectedItem.members?.length || 0) + 1)).toFixed(2)} cUSD
+                        {formatAmount(parseFloat(selectedItem.amount) / ((selectedItem.members?.length || 0) + 1))} cUSD
                       </p>
                     </div>
 
@@ -161,7 +162,7 @@ export default function HistoryPage() {
                           </div>
                         </div>
                         <p className="text-xs font-bold text-foreground">
-                          {(parseFloat(selectedItem.amount) / ((selectedItem.members?.length || 0) + 1)).toFixed(2)} cUSD
+                          {formatAmount(parseFloat(selectedItem.amount) / ((selectedItem.members?.length || 0) + 1))} cUSD
                         </p>
                       </div>
                     ))}

@@ -9,6 +9,18 @@ export function formatCurrency(amount: number, currency = 'USD'): string {
 }
 
 /**
+ * Format a numeric amount, showing up to specified decimals, but avoiding trailing zeros.
+ * If the value is 0, it returns "0".
+ */
+export function formatAmount(amount: number | string, maxDecimals = 2): string {
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(num) || num === 0) return '0';
+  
+  // Use toFixed to round, then Number() to strip trailing zeros
+  return Number(num.toFixed(maxDecimals)).toString();
+}
+
+/**
  * Truncate an address for display
  */
 export function truncateAddress(address: string, startLength = 6, endLength = 4): string {
