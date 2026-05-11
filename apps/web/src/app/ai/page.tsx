@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send, User, Bot, Mic, MicOff, RefreshCw, Pencil } from "lucide-react"
+import { Send, User, Bot, Mic, MicOff, RefreshCw, Pencil, Plus, MessageSquare, Clock } from "lucide-react"
 
 import { GoogleGenerativeAI } from "@google/generative-ai"
 
-import { useChat, Message } from "@/context/chat-context"
+import { useChat, Message, ChatSession } from "@/context/chat-context"
 
 interface Member {
   name: string;
@@ -39,11 +39,23 @@ If they ask "what did I buy recently", look at the most recent entries in the hi
 Be concise, friendly, and helpful. Always refer to amounts in cUSD.`;
 
 export default function AIAgent() {
-  const { messages, setMessages } = useChat()
+  const { messages, setMessages, currentSessionId, setCurrentSessionId, sessions, setSessions } = useChat()
   const [input, setInput] = useState("")
   const [isListening, setIsListening] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [history, setHistory] = useState<HistoryItem[]>([])
+
+  const loadSession = (session: ChatSession) => {
+    setCurrentSessionId(session.id)
+    setMessages(session.messages)
+  }
+
+  const startNewChat = () => {
+    setCurrentSessionId(null)
+    setMessages([
+      { role: "bot", content: "Hi! I'm your SplitPay Assistant. I've analyzed your billing history. How can I help you today?" }
+    ])
+  }
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -239,6 +251,45 @@ export default function AIAgent() {
       {/* Input Area - Fixed above BottomNav */}
       <div className="fixed bottom-20 left-0 right-0 z-20 bg-background/95 backdrop-blur-md pt-3 pb-4 px-4 border-t border-border/50">
         <div className="max-w-md mx-auto">
+          {/* Chat History Badges */}
+          <div className="flex items-center gap-2 mb-3 py-1">
+            <div className="flex-shrink-0">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={startNewChat}
+                className={`h-8 text-[10px] font-bold uppercase tracking-wider rounded-lg border-primary/20 text-primary bg-primary/5 gap-1.5 ${!currentSessionId ? 'ring-1 ring-primary/30' : ''}`}
+              >
+                <Plus className="h-3 w-3" />
+                New
+              </Button>
+            </div>
+            
+            <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar relative">
+              {sessions.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => loadSession(s)}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all border whitespace-nowrap flex items-center gap-2 ${
+                    currentSessionId === s.id 
+                    ? "bg-primary text-white border-primary shadow-md shadow-primary/20" 
+                    : "bg-white text-muted-foreground border-border hover:border-primary/50 hover:text-foreground shadow-sm"
+                  }`}
+                >
+                  <MessageSquare className={`h-3 w-3 ${currentSessionId === s.id ? "text-white" : "text-muted-foreground"}`} />
+                  {s.title}
+                </button>
+              ))}
+              
+              {sessions.length === 0 && (
+                <div className="text-[10px] text-muted-foreground italic px-2 flex items-center gap-1.5">
+                  <Clock className="h-3 w-3" />
+                  No previous chats
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="relative">
             <Input
               placeholder="Type your question..."
