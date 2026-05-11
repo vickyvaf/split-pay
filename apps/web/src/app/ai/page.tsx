@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send, User, Bot } from "lucide-react"
+import { Send, User, Bot, Mic, MicOff } from "lucide-react"
 
 interface Message {
   role: "user" | "bot";
@@ -15,6 +15,34 @@ export default function AIAgent() {
     { role: "bot", content: "Hi! I'm your SplitPay Assistant. How can I help you today?" }
   ])
   const [input, setInput] = useState("")
+  const [isListening, setIsListening] = useState(false)
+
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechRecognition) {
+      alert("Voice recognition is not supported in this browser.")
+      return
+    }
+
+    const recognition = new SpeechRecognition()
+    recognition.lang = 'en-US'
+    recognition.continuous = false
+    recognition.interimResults = false
+
+    recognition.onstart = () => setIsListening(true)
+    recognition.onend = () => setIsListening(false)
+    recognition.onerror = (event: any) => {
+      console.error(event.error)
+      setIsListening(false)
+    }
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript
+      setInput(prev => prev ? `${prev} ${transcript}` : transcript)
+    }
+
+    recognition.start()
+  }
 
   const sendMessage = () => {
     if (!input.trim()) return
@@ -77,8 +105,8 @@ export default function AIAgent() {
         )}
       </div>
 
-      {/* Input Area - Sticky above BottomNav */}
-      <div className="sticky bottom-0 z-20 bg-background/95 backdrop-blur-md pt-3 pb-2 -mx-4 px-4 border-t border-border/50 -mb-6">
+      {/* Input Area - Fixed above BottomNav */}
+      <div className="fixed bottom-20 left-0 right-0 z-20 bg-background/95 backdrop-blur-md pt-3 pb-4 px-4 border-t border-border/50">
         <div className="max-w-md mx-auto">
           <div className="relative">
             <Input
@@ -86,15 +114,29 @@ export default function AIAgent() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              className="pr-12 h-12 rounded-xl bg-white border-border focus:border-primary shadow-sm text-sm"
+              className="pr-24 h-12 rounded-xl bg-white border-border focus:border-primary shadow-sm text-sm"
             />
-            <Button
-              size="icon"
-              className="absolute right-1 top-1 h-10 w-10 rounded-lg shadow-md shadow-primary/20"
-              onClick={sendMessage}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+            <div className="absolute right-1 top-1 flex gap-1">
+              <Button
+                size="icon"
+                variant={isListening ? "destructive" : "ghost"}
+                className={`h-10 w-10 rounded-lg transition-all ${
+                  isListening 
+                    ? 'animate-pulse bg-destructive/20 text-destructive hover:bg-destructive/30 border border-destructive/20' 
+                    : 'text-muted-foreground hover:bg-secondary hover:text-primary'
+                }`}
+                onClick={startListening}
+              >
+                {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              </Button>
+              <Button
+                size="icon"
+                className="h-10 w-10 rounded-lg shadow-md shadow-primary/20"
+                onClick={sendMessage}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
