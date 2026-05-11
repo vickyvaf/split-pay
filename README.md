@@ -1,4 +1,4 @@
-# split-pay
+# Split Pay
 
 Split bills instantly with friends.
 
