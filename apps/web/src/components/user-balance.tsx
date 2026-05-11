@@ -3,6 +3,9 @@
 import { useAccount, useReadContract, useBalance } from "wagmi";
 import { erc20Abi, formatUnits } from "viem";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Wallet } from "lucide-react";
+import { ConnectButton } from "@/components/connect-button";
 
 const cUSD_ADDRESS = "0x765de816845861e75a25fca122bb6898b8b1282a";
 const USDC_ADDRESS = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C";
@@ -52,23 +55,57 @@ function BalanceDisplay({ address, token, symbol }: { address: `0x${string}`, to
 
 export function UserBalance() {
   const { address, isConnected } = useAccount();
+  const { data: balance, isLoading } = useReadContract({
+    address: cUSD_ADDRESS,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: {
+      enabled: isConnected && !!address,
+    },
+  });
 
   if (!isConnected || !address) {
-    return null;
+    return (
+      <Card className="bg-primary text-primary-foreground border-none shadow-xl shadow-primary/20">
+        <CardContent className="p-6 text-center">
+          <p className="text-sm opacity-80 mb-2">Connect your wallet to see your balance</p>
+          <ConnectButton />
+        </CardContent>
+      </Card>
+    );
   }
 
+  const formattedBalance = balance 
+    ? parseFloat(formatUnits(balance as bigint, 18)).toFixed(2)
+    : "0.00";
+
   return (
-    <Card className="w-full max-w-md mx-auto mb-8">
-      <CardHeader>
-        <CardTitle className="text-lg font-medium">Connected Wallet</CardTitle>
-        <p className="text-sm text-muted-foreground truncate pt-1">{address}</p>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2 pt-2 border-t">
-          <BalanceDisplay address={address} symbol="CELO" token={undefined} />
-          <BalanceDisplay address={address} token={cUSD_ADDRESS} symbol="cUSD" />
-          <BalanceDisplay address={address} token={USDC_ADDRESS} symbol="USDC" />
-          <BalanceDisplay address={address} token={USDT_ADDRESS} symbol="USDT" />
+    <Card className="bg-primary text-primary-foreground border-none shadow-xl shadow-primary/20 overflow-hidden relative">
+      {/* Decorative background element */}
+      <div className="absolute -right-4 -top-4 h-24 w-24 bg-white/10 rounded-full blur-2xl"></div>
+      
+      <CardContent className="p-6 relative">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <p className="text-xs font-medium opacity-80 uppercase tracking-wider">Total Balance</p>
+            <div className="flex items-baseline gap-1 mt-1">
+              <span className="text-3xl font-bold">{isLoading ? "---" : formattedBalance}</span>
+              <span className="text-sm font-medium opacity-80">cUSD</span>
+            </div>
+          </div>
+          <div className="h-10 w-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+            <Wallet className="h-5 w-5" />
+          </div>
+        </div>
+        
+        <div className="flex gap-2">
+          <Button variant="secondary" className="flex-1 font-bold bg-white text-primary hover:bg-white/90">
+            Send
+          </Button>
+          <Button variant="outline" className="flex-1 font-bold border-white/30 text-white bg-transparent hover:bg-white/10 hover:text-white">
+            Top Up
+          </Button>
         </div>
       </CardContent>
     </Card>
