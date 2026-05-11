@@ -308,7 +308,7 @@ export default function CreateBill() {
   // 2. Scan View
   if (mode === "scan") {
     return (
-      <div className="space-y-6 py-2 animate-in fade-in slide-in-from-right-4 duration-500">
+      <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
         <button
           onClick={() => setMode("choice")}
           className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
@@ -461,7 +461,7 @@ export default function CreateBill() {
   // 3. Type with AI View
   if (mode === "ai") {
     return (
-      <div className="space-y-6 py-2 animate-in fade-in slide-in-from-right-4 duration-500">
+      <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
         <button
           onClick={() => setMode("choice")}
           className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
@@ -583,7 +583,7 @@ export default function CreateBill() {
 
   // 4. Manual Entry View (Original Form)
   return (
-    <div className="space-y-6 py-2 animate-in fade-in slide-in-from-right-4 duration-500">
+    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="flex items-center justify-between">
         <button
           onClick={() => setMode("choice")}
