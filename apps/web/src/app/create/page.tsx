@@ -493,8 +493,13 @@ export default function CreateBill() {
                 </Label>
                 <Input
                   type="number"
+                  min="0"
                   value={totalAmount}
-                  onChange={(e) => setTotalAmount(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val !== "" && parseFloat(val) < 0) return;
+                    setTotalAmount(val);
+                  }}
                   className="h-12 rounded-xl bg-white border-border focus:border-primary font-bold text-lg"
                 />
               </div>
@@ -636,8 +641,13 @@ export default function CreateBill() {
                 </Label>
                 <Input
                   type="number"
+                  min="0"
                   value={totalAmount}
-                  onChange={(e) => setTotalAmount(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val !== "" && parseFloat(val) < 0) return;
+                    setTotalAmount(val);
+                  }}
                   className="h-12 rounded-xl bg-white border-border focus:border-primary font-bold text-lg"
                 />
               </div>
@@ -712,9 +722,14 @@ export default function CreateBill() {
             <Input
               id="totalAmount"
               type="number"
+              min="0"
               placeholder="0"
               value={totalAmount}
-              onChange={(e) => setTotalAmount(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val !== "" && parseFloat(val) < 0) return;
+                setTotalAmount(val);
+              }}
               className="bg-muted/10 border-border focus:border-primary rounded-xl h-11 text-sm"
             />
           </div>
