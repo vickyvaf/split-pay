@@ -17,16 +17,21 @@ import {
 interface Member {
   name: string;
   address: string;
+  amount: number;
 }
 
 interface HistoryItem {
   id: number;
-  name: string;
+  name?: string;
+  groupName?: string;
   date: string;
-  amount: string;
+  amount: string | number;
+  totalAmount?: number;
+  initiatorAmount?: number;
   status: "Completed" | "Paid" | "Pending" | string;
   type: "initiated" | "member" | string;
   members?: Member[];
+  splitMode?: "equal" | "custom";
 }
 
 export default function HistoryPage() {
@@ -71,7 +76,7 @@ export default function HistoryPage() {
                 <div className={`w-1.5 ${item.status === "Completed" ? "bg-primary" : "bg-orange-500"}`}></div>
                 <div className="p-4 flex-1 flex items-center justify-between">
                   <div className="space-y-1">
-                    <h4 className="font-medium text-sm text-foreground">{item.name}</h4>
+                    <h4 className="font-medium text-sm text-foreground">{item.groupName || item.name}</h4>
                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
                       <span>
                         {item.date.includes(':') ? item.date : new Date(item.id).toLocaleDateString('en-GB', {
@@ -90,7 +95,7 @@ export default function HistoryPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="text-right">
-                      <p className="font-bold text-sm text-foreground">{formatAmount(item.amount)} cUSD</p>
+                      <p className="font-bold text-sm text-foreground">{formatAmount(item.totalAmount || item.amount)} cUSD</p>
                       <div className="flex items-center justify-end gap-1">
                         {item.status === "Completed" ? (
                           <CheckCircle2 className="h-3 w-3 text-green-600" />
@@ -130,14 +135,14 @@ export default function HistoryPage() {
             <div className="flex flex-col flex-1 bg-white overflow-hidden">
               <div className={`h-24 ${selectedItem.status === "Completed" ? "bg-primary" : "bg-orange-500"} p-6 flex items-end relative`}>
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-1 bg-white/20 rounded-full" />
-                <h2 className="text-white text-xl font-bold">{selectedItem.name}</h2>
+                <h2 className="text-white text-xl font-bold">{selectedItem.groupName || selectedItem.name}</h2>
               </div>
 
               <div className="p-6 space-y-6 overflow-y-auto flex-1">
                 <div className="flex justify-between items-center bg-muted/30 p-4 rounded-2xl">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Amount</p>
-                    <p className="text-2xl font-bold text-foreground">{formatAmount(selectedItem.amount)} cUSD</p>
+                    <p className="text-2xl font-bold text-foreground">{formatAmount(selectedItem.totalAmount || selectedItem.amount)} cUSD</p>
                   </div>
                   <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${selectedItem.status === "Completed" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
                     }`}>
@@ -160,7 +165,7 @@ export default function HistoryPage() {
                         </div>
                       </div>
                       <p className="text-xs font-bold text-primary">
-                        {formatAmount(parseFloat(selectedItem.amount) / ((selectedItem.members?.length || 0) + 1))} cUSD
+                        {formatAmount(selectedItem.initiatorAmount || (parseFloat(selectedItem.amount as string) / ((selectedItem.members?.length || 0) + 1)))} cUSD
                       </p>
                     </div>
 
@@ -174,7 +179,7 @@ export default function HistoryPage() {
                           </div>
                         </div>
                         <p className="text-xs font-bold text-foreground">
-                          {formatAmount(parseFloat(selectedItem.amount) / ((selectedItem.members?.length || 0) + 1))} cUSD
+                          {formatAmount(member.amount || (parseFloat(selectedItem.amount as string) / ((selectedItem.members?.length || 0) + 1)))} cUSD
                         </p>
                       </div>
                     ))}

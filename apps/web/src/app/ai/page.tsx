@@ -119,7 +119,7 @@ export default function AIAgent() {
         : "\n\nUSER BILLING HISTORY: No history found.";
 
       const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.0-flash",
         systemInstruction: SYSTEM_INSTRUCTION + historyContext
       });
 
