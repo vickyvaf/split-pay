@@ -33,6 +33,7 @@ export default function HistoryPage() {
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   useEffect(() => {
     const savedHistory = localStorage.getItem("billing_history")
@@ -46,6 +47,7 @@ export default function HistoryPage() {
     setHistory(updatedHistory)
     localStorage.setItem("billing_history", JSON.stringify(updatedHistory))
     setIsDetailOpen(false)
+    setShowDeleteConfirm(false)
   }
 
   return (
@@ -119,7 +121,10 @@ export default function HistoryPage() {
         )}
       </div>
 
-      <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+      <Sheet open={isDetailOpen} onOpenChange={(open) => {
+        setIsDetailOpen(open)
+        if (!open) setShowDeleteConfirm(false)
+      }}>
         <SheetContent side="bottom" className="rounded-t-3xl p-0 overflow-hidden border-none max-h-[90vh] flex flex-col">
           {selectedItem && (
             <div className="flex flex-col flex-1 bg-white overflow-hidden">
@@ -202,16 +207,43 @@ export default function HistoryPage() {
                 </div>
 
                 <div className="pt-4 flex flex-col gap-3">
-                  <Button
-                    variant="destructive"
-                    className="w-full py-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
-                    onClick={() => handleDelete(selectedItem.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete History
-                  </Button>
+                  {!showDeleteConfirm ? (
+                    <Button
+                      variant="destructive"
+                      className="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                      onClick={() => setShowDeleteConfirm(true)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete History
+                    </Button>
+                  ) : (
+                    <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <p className="text-[10px] text-center font-bold text-destructive uppercase tracking-widest">
+                        Are you sure you want to delete this?
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="destructive"
+                          className="flex-1 py-3 rounded-xl text-[10px] font-bold uppercase"
+                          onClick={() => handleDelete(selectedItem.id)}
+                        >
+                          Delete
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="flex-1 py-3 rounded-xl text-[10px] font-bold uppercase bg-white"
+                          onClick={() => setShowDeleteConfirm(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                   <button
-                    onClick={() => setIsDetailOpen(false)}
+                    onClick={() => {
+                      setIsDetailOpen(false)
+                      setShowDeleteConfirm(false)
+                    }}
                     className="w-full bg-muted/50 hover:bg-muted py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors text-muted-foreground"
                   >
                     Close Details
