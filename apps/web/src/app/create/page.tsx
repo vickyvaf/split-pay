@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Plus,
   Trash2,
@@ -21,14 +21,14 @@ import {
   MessageSquare,
   Zap,
   Mic,
-  MicOff
-} from "lucide-react"
-import { formatAmount } from "@/lib/app-utils"
-import { useRouter } from "next/navigation"
-import type { StaticImageData } from "next/image"
-import scene1 from "@/assets/image-scene-1.jpg"
-import scene2 from "@/assets/image-scene-2.jpg"
-import scene3 from "@/assets/image-scene-3.jpg"
+  MicOff,
+} from "lucide-react";
+import { formatAmount } from "@/lib/app-utils";
+import { useRouter } from "next/navigation";
+import type { StaticImageData } from "next/image";
+import scene1 from "@/assets/image-scene-1.jpg";
+import scene2 from "@/assets/image-scene-2.jpg";
+import scene3 from "@/assets/image-scene-3.jpg";
 
 interface CarouselItem {
   image: string | StaticImageData;
@@ -37,137 +37,165 @@ interface CarouselItem {
 }
 
 export default function CreateBill() {
-  const [mode, setMode] = useState<"choice" | "manual" | "scan" | "ai">("choice")
-  const [groupName, setGroupName] = useState("")
-  const [totalAmount, setTotalAmount] = useState("")
-  const [members, setMembers] = useState([{ name: "", address: "" }])
-  const [scanStep, setScanStep] = useState<"upload" | "processing" | "result">("upload")
-  const [activeSlide, setActiveSlide] = useState(0)
-  const [isCreating, setIsCreating] = useState(false)
-  const [isListening, setIsListening] = useState(false)
-  const [autoStartVoice, setAutoStartVoice] = useState(false)
-  const router = useRouter()
+  const [mode, setMode] = useState<"choice" | "manual" | "scan" | "ai">(
+    "choice",
+  );
+  const [groupName, setGroupName] = useState("");
+  const [totalAmount, setTotalAmount] = useState("");
+  const [members, setMembers] = useState([{ name: "", address: "" }]);
+  const [scanStep, setScanStep] = useState<"upload" | "processing" | "result">(
+    "upload",
+  );
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [autoStartVoice, setAutoStartVoice] = useState(false);
+  const router = useRouter();
 
   const startListening = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Voice recognition is not supported in this browser.")
-      return
+      alert("Voice recognition is not supported in this browser.");
+      return;
     }
 
-    const recognition = new SpeechRecognition()
-    recognition.lang = 'en-US'
-    recognition.continuous = false
-    recognition.interimResults = false
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
 
-    recognition.onstart = () => setIsListening(true)
-    recognition.onend = () => setIsListening(false)
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
     recognition.onerror = (event: any) => {
-      console.error(event.error)
-      setIsListening(false)
-    }
+      console.error(event.error);
+      setIsListening(false);
+    };
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript
-      setGroupName(prev => prev ? `${prev} ${transcript}` : transcript)
-    }
+      const transcript = event.results[0][0].transcript;
+      setGroupName((prev) => (prev ? `${prev} ${transcript}` : transcript));
+    };
 
-    recognition.start()
-  }
+    recognition.start();
+  };
 
   const carouselItems: CarouselItem[] = [
     {
       image: scene1,
       title: "Simplify Every Moment",
-      label: "MINIPAY UTILITY"
+      label: "MINIPAY UTILITY",
     },
     {
       image: scene2,
       title: "Split Bills Instantly",
-      label: "SEAMLESS PAYMENTS"
+      label: "SEAMLESS PAYMENTS",
     },
     {
       image: scene3,
       title: "Focus on the Fun",
-      label: "GROUP DYNAMICS"
-    }
-  ]
+      label: "GROUP DYNAMICS",
+    },
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % carouselItems.length)
-    }, 3000)
-    return () => clearInterval(timer)
-  }, [carouselItems.length])
+      setActiveSlide((prev) => (prev + 1) % carouselItems.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [carouselItems.length]);
 
   useEffect(() => {
     if (mode === "ai" && autoStartVoice) {
       const timer = setTimeout(() => {
-        startListening()
-        setAutoStartVoice(false)
-      }, 500)
-      return () => clearTimeout(timer)
+        startListening();
+        setAutoStartVoice(false);
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [mode, autoStartVoice])
+  }, [mode, autoStartVoice]);
 
   useEffect(() => {
     if (scanStep === "processing") {
       const timer = setTimeout(() => {
         // Mock transition but with empty data for user testing
-        setScanStep("result")
-      }, 2000)
-      return () => clearTimeout(timer)
+        setScanStep("result");
+      }, 2000);
+      return () => clearTimeout(timer);
     }
-  }, [scanStep])
+  }, [scanStep]);
 
   const addMember = () => {
-    setMembers([...members, { name: "", address: "" }])
-  }
+    setMembers([...members, { name: "", address: "" }]);
+  };
 
   const removeMember = (index: number) => {
-    if (members.length <= 1) return
-    setMembers(members.filter((_, i) => i !== index))
-  }
+    if (members.length <= 1) return;
+    setMembers(members.filter((_, i) => i !== index));
+  };
 
-  const updateMember = (index: number, field: "name" | "address", value: string) => {
-    const newMembers = [...members]
-    newMembers[index][field] = value
-    setMembers(newMembers)
-  }
+  const updateMember = (
+    index: number,
+    field: "name" | "address",
+    value: string,
+  ) => {
+    const newMembers = [...members];
+    newMembers[index][field] = value;
+    setMembers(newMembers);
+  };
 
-  const splitAmount = formatAmount(totalAmount ? (parseFloat(totalAmount) / (members.length + 1)) : 0, 2)
+  const splitAmount = formatAmount(
+    totalAmount ? parseFloat(totalAmount) / (members.length + 1) : 0,
+    2,
+  );
 
   const handleCreateBill = () => {
-    setIsCreating(true)
+    setIsCreating(true);
 
     // Create new history item
     const newBill = {
       id: Date.now(),
       name: groupName,
-      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+      date: new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
       amount: totalAmount,
       status: "Pending", // Default status for new bills
       type: "initiated",
-      members: members.filter(m => m.name || m.address)
-    }
+      members: members.filter((m) => m.name || m.address),
+    };
 
     // Save to localStorage
-    const existingHistory = JSON.parse(localStorage.getItem("billing_history") || "[]")
-    localStorage.setItem("billing_history", JSON.stringify([newBill, ...existingHistory]))
+    const existingHistory = JSON.parse(
+      localStorage.getItem("billing_history") || "[]",
+    );
+    localStorage.setItem(
+      "billing_history",
+      JSON.stringify([newBill, ...existingHistory]),
+    );
 
     // Simulate API call and redirect
     setTimeout(() => {
-      router.push("/history")
-    }, 1500)
-  }
+      router.push("/history");
+    }, 1500);
+  };
 
   // 1. Choice View (Matches Screenshot)
   if (mode === "choice") {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-foreground">Choose your method</h1>
-          <p className="text-muted-foreground text-sm">How would you like to add the expenses?</p>
+          <h1 className="text-2xl font-bold text-foreground">
+            Choose your method
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            How would you like to add the expenses?
+          </p>
         </div>
 
         <div className="grid gap-4 relative z-20">
@@ -175,8 +203,8 @@ export default function CreateBill() {
           <div
             role="button"
             onClick={() => {
-              setMode("scan")
-              setScanStep("upload")
+              setMode("scan");
+              setScanStep("upload");
             }}
             className="group flex items-center gap-4 bg-primary/5 p-4 rounded-xl shadow-sm border border-primary/20 transition-all active:scale-[0.98] cursor-pointer relative z-30"
           >
@@ -184,21 +212,23 @@ export default function CreateBill() {
               <Aperture className="h-6 w-6" />
             </div>
             <div className="flex-1 text-left">
-              <h3 className="font-semibold text-foreground text-sm">Scan receipt</h3>
-              <p className="text-xs text-muted-foreground">Instant OCR detection from photo</p>
+              <h3 className="font-semibold text-foreground text-sm">
+                Scan receipt
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Instant OCR detection from photo
+              </p>
             </div>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </div>
 
           {/* Type with AI */}
-          <div
-            className="group flex flex-col bg-white rounded-xl shadow-sm border border-border transition-all overflow-hidden relative z-30"
-          >
+          <div className="group flex flex-col bg-white rounded-xl shadow-sm border border-border transition-all overflow-hidden relative z-30">
             <div
               role="button"
               onClick={() => {
-                setMode("ai")
-                setScanStep("upload")
+                setMode("ai");
+                setScanStep("upload");
               }}
               className="flex items-center gap-4 p-4 active:scale-[0.98] cursor-pointer"
             >
@@ -206,16 +236,20 @@ export default function CreateBill() {
                 <MessageSquare className="h-6 w-6" />
               </div>
               <div className="flex-1 text-left">
-                <h3 className="font-semibold text-foreground text-sm">Type with AI</h3>
-                <p className="text-xs text-muted-foreground">Describe your bill or chat with AI</p>
+                <h3 className="font-semibold text-foreground text-sm">
+                  Type with AI
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Describe your bill or chat with AI
+                </p>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </div>
             <div className="flex border-t border-border/50">
               <button
                 onClick={() => {
-                  setMode("ai")
-                  setScanStep("upload")
+                  setMode("ai");
+                  setScanStep("upload");
                 }}
                 className="flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5"
               >
@@ -225,9 +259,9 @@ export default function CreateBill() {
               <div className="w-[1px] bg-border/50" />
               <button
                 onClick={() => {
-                  setMode("ai")
-                  setScanStep("upload")
-                  setAutoStartVoice(true)
+                  setMode("ai");
+                  setScanStep("upload");
+                  setAutoStartVoice(true);
                 }}
                 className="flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5"
               >
@@ -247,8 +281,12 @@ export default function CreateBill() {
               <PenLine className="h-6 w-6" />
             </div>
             <div className="flex-1 text-left">
-              <h3 className="font-semibold text-foreground text-sm">Fill manually</h3>
-              <p className="text-xs text-muted-foreground">Enter line items one by one</p>
+              <h3 className="font-semibold text-foreground text-sm">
+                Fill manually
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Enter line items one by one
+              </p>
             </div>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </div>
@@ -261,8 +299,12 @@ export default function CreateBill() {
               <Zap className="h-5 w-5 fill-primary/20" />
             </div>
             <div>
-              <p className="text-xs font-bold text-foreground">Fast Settlements</p>
-              <p className="text-xs text-muted-foreground">Settle up instantly with zero fees within the MiniPay ecosystem.</p>
+              <p className="text-xs font-bold text-foreground">
+                Fast Settlements
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Settle up instantly with zero fees within the MiniPay ecosystem.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -272,19 +314,25 @@ export default function CreateBill() {
           {carouselItems.map((item, idx) => (
             <div
               key={idx}
-              className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === activeSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === activeSlide ? "opacity-100 z-10" : "opacity-0 z-0"
                 }`}
             >
               <img
-                src={typeof item.image === 'string' ? item.image : item.image.src}
+                src={
+                  typeof item.image === "string" ? item.image : item.image.src
+                }
                 alt={item.title}
-                className={`h-full w-full object-cover transition-transform duration-[6000ms] ease-out ${idx === activeSlide ? 'scale-110' : 'scale-100'
+                className={`h-full w-full object-cover transition-transform duration-[6000ms] ease-out ${idx === activeSlide ? "scale-110" : "scale-100"
                   }`}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 space-y-0.5 text-white">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">{item.label}</p>
-                <h2 className="text-xl font-bold tracking-tight">{item.title}</h2>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">
+                  {item.label}
+                </p>
+                <h2 className="text-xl font-bold tracking-tight">
+                  {item.title}
+                </h2>
               </div>
             </div>
           ))}
@@ -294,16 +342,15 @@ export default function CreateBill() {
             {carouselItems.map((_, idx) => (
               <div
                 key={idx}
-                className={`h-1 rounded-full transition-all duration-500 ${idx === activeSlide ? 'w-4 bg-primary' : 'w-1.5 bg-white/40'
+                className={`h-1 rounded-full transition-all duration-500 ${idx === activeSlide ? "w-4 bg-primary" : "w-1.5 bg-white/40"
                   }`}
               />
             ))}
           </div>
         </div>
       </div>
-    )
+    );
   }
-
 
   // 2. Scan View
   if (mode === "scan") {
@@ -320,21 +367,25 @@ export default function CreateBill() {
         {scanStep === "upload" && (
           <div className="space-y-6">
             <div className="space-y-1">
-              <h1 className="text-2xl font-bold text-foreground">Snap Receipt</h1>
-              <p className="text-muted-foreground text-sm">Place your receipt on a flat surface</p>
+              <h1 className="text-2xl font-bold text-foreground">
+                Snap Receipt
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                Place your receipt on a flat surface
+              </p>
             </div>
 
             <div className="grid gap-4">
-              <div
-                className="group relative cursor-pointer rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-12 text-center transition-all hover:border-primary hover:bg-primary/10 active:scale-[0.98]"
-              >
+              <div className="group relative cursor-pointer rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-12 text-center transition-all hover:border-primary hover:bg-primary/10 active:scale-[0.98]">
                 <div className="flex flex-col items-center gap-4 pointer-events-none">
                   <div className="h-20 w-20 rounded-full bg-white flex items-center justify-center text-primary shadow-sm">
                     <Camera className="h-10 w-10" />
                   </div>
                   <div className="space-y-1">
                     <p className="text-lg font-bold">Use Camera</p>
-                    <p className="text-xs text-muted-foreground">Take a photo now</p>
+                    <p className="text-xs text-muted-foreground">
+                      Take a photo now
+                    </p>
                   </div>
                 </div>
                 <input
@@ -345,19 +396,19 @@ export default function CreateBill() {
                   id="receipt-upload"
                   onChange={(e) => {
                     if (e.target.files && e.target.files.length > 0) {
-                      setScanStep("processing")
+                      setScanStep("processing");
                     }
                   }}
                 />
               </div>
 
-              <div
-                className="group relative cursor-pointer flex items-center gap-4 rounded-xl border border-border bg-white p-4 transition-all active:scale-[0.98]"
-              >
+              <div className="group relative cursor-pointer flex items-center gap-4 rounded-xl border border-border bg-white p-4 transition-all active:scale-[0.98]">
                 <div className="h-10 w-10 rounded-xl bg-secondary/30 flex items-center justify-center text-primary pointer-events-none">
                   <ImageIcon className="h-5 w-5" />
                 </div>
-                <div className="flex-1 text-sm font-bold pointer-events-none">Choose from Gallery</div>
+                <div className="flex-1 text-sm font-bold pointer-events-none">
+                  Choose from Gallery
+                </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground/50 pointer-events-none" />
                 <input
                   type="file"
@@ -366,7 +417,7 @@ export default function CreateBill() {
                   id="gallery-upload"
                   onChange={(e) => {
                     if (e.target.files && e.target.files.length > 0) {
-                      setScanStep("processing")
+                      setScanStep("processing");
                     }
                   }}
                 />
@@ -384,9 +435,13 @@ export default function CreateBill() {
               </div>
             </div>
             <div className="text-center space-y-3">
-              <h3 className="text-xl font-bold tracking-tight">AI is Thinking...</h3>
+              <h3 className="text-xl font-bold tracking-tight">
+                AI is Thinking...
+              </h3>
               <div className="flex flex-col gap-1">
-                <p className="text-sm text-muted-foreground">Extracting items and calculating total</p>
+                <p className="text-sm text-muted-foreground">
+                  Extracting items and calculating total
+                </p>
                 <div className="flex justify-center gap-1">
                   <span className="h-1 w-1 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
                   <span className="h-1 w-1 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
@@ -408,10 +463,14 @@ export default function CreateBill() {
                   <CheckCircle2 className="h-7 w-7" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Scan Successful</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">
+                    Scan Successful
+                  </p>
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl font-bold">45.50</span>
-                    <span className="text-sm font-bold opacity-80 uppercase">cUSD</span>
+                    <span className="text-sm font-bold opacity-80 uppercase">
+                      cUSD
+                    </span>
                   </div>
                 </div>
               </div>
@@ -419,7 +478,9 @@ export default function CreateBill() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Group Name</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                  Group Name
+                </Label>
                 <Input
                   value={groupName}
                   onChange={(e) => setGroupName(e.target.value)}
@@ -427,7 +488,9 @@ export default function CreateBill() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Total Amount (cUSD)</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                  Total Amount (cUSD)
+                </Label>
                 <Input
                   type="number"
                   value={totalAmount}
@@ -455,7 +518,7 @@ export default function CreateBill() {
           </div>
         )}
       </div>
-    )
+    );
   }
 
   // 3. Type with AI View
@@ -473,8 +536,12 @@ export default function CreateBill() {
         {scanStep === "upload" && (
           <div className="space-y-6">
             <div className="space-y-1">
-              <h1 className="text-2xl font-bold text-foreground">Type with AI</h1>
-              <p className="text-muted-foreground text-sm">Describe your bill or paste the text here</p>
+              <h1 className="text-2xl font-bold text-foreground">
+                Type with AI
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                Describe your bill or paste the text here
+              </p>
             </div>
 
             <Card className="border-border shadow-sm rounded-xl overflow-hidden bg-white p-4 relative">
@@ -488,10 +555,14 @@ export default function CreateBill() {
                 <Button
                   size="icon"
                   variant={isListening ? "destructive" : "secondary"}
-                  className={`h-12 w-12 rounded-full transition-all ${isListening ? 'animate-pulse scale-110' : 'hover:scale-105'}`}
+                  className={`h-12 w-12 rounded-full transition-all ${isListening ? "animate-pulse scale-110" : "hover:scale-105"}`}
                   onClick={startListening}
                 >
-                  {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                  {isListening ? (
+                    <MicOff className="h-5 w-5" />
+                  ) : (
+                    <Mic className="h-5 w-5" />
+                  )}
                 </Button>
               </div>
             </Card>
@@ -514,8 +585,12 @@ export default function CreateBill() {
               </div>
             </div>
             <div className="text-center space-y-3">
-              <h3 className="text-xl font-bold text-foreground">AI is Reading...</h3>
-              <p className="text-sm text-muted-foreground">Extracting bill details from your text</p>
+              <h3 className="text-xl font-bold text-foreground">
+                AI is Reading...
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Extracting bill details from your text
+              </p>
             </div>
           </div>
         )}
@@ -531,10 +606,14 @@ export default function CreateBill() {
                   <Sparkles className="h-7 w-7" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">AI Extraction Success</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">
+                    AI Extraction Success
+                  </p>
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl font-bold">45.50</span>
-                    <span className="text-sm font-bold opacity-80 uppercase">cUSD</span>
+                    <span className="text-sm font-bold opacity-80 uppercase">
+                      cUSD
+                    </span>
                   </div>
                 </div>
               </div>
@@ -542,7 +621,9 @@ export default function CreateBill() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Detected Name</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                  Detected Name
+                </Label>
                 <Input
                   value={groupName}
                   onChange={(e) => setGroupName(e.target.value)}
@@ -550,7 +631,9 @@ export default function CreateBill() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Detected Amount (cUSD)</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                  Detected Amount (cUSD)
+                </Label>
                 <Input
                   type="number"
                   value={totalAmount}
@@ -578,12 +661,12 @@ export default function CreateBill() {
           </div>
         )}
       </div>
-    )
+    );
   }
 
   // 4. Manual Entry View (Original Form)
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+    <div className="space-y-3 animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="flex items-center justify-between">
         <button
           onClick={() => setMode("choice")}
@@ -596,13 +679,20 @@ export default function CreateBill() {
 
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-foreground">Bill Details</h1>
-        <p className="text-muted-foreground text-sm">Enter group info and participants</p>
+        <p className="text-muted-foreground text-sm">
+          Enter group info and participants
+        </p>
       </div>
 
       <Card className="border-border shadow-sm rounded-lg overflow-hidden">
         <CardContent className="p-4 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="groupName" className="text-xs font-bold text-muted-foreground ml-1">Group Name</Label>
+            <Label
+              htmlFor="groupName"
+              className="text-xs font-bold text-muted-foreground ml-1"
+            >
+              Group Name
+            </Label>
             <Input
               id="groupName"
               placeholder="e.g. Dinner Jakarta"
@@ -613,14 +703,19 @@ export default function CreateBill() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="totalAmount" className="text-xs font-bold text-muted-foreground ml-1">Total Amount (cUSD)</Label>
+            <Label
+              htmlFor="totalAmount"
+              className="text-xs font-bold text-muted-foreground ml-1"
+            >
+              Total Amount (cUSD)
+            </Label>
             <Input
               id="totalAmount"
               type="number"
-              placeholder="0.00"
+              placeholder="0"
               value={totalAmount}
               onChange={(e) => setTotalAmount(e.target.value)}
-              className="bg-muted/10 border-border focus:border-primary rounded-xl h-12 font-bold text-lg"
+              className="bg-muted/10 border-border focus:border-primary rounded-xl h-11 text-sm"
             />
           </div>
         </CardContent>
@@ -646,18 +741,27 @@ export default function CreateBill() {
                   ME
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-foreground">You (Initiator)</p>
-                  <p className="text-[10px] text-muted-foreground">Will receive payments</p>
+                  <p className="text-xs font-bold text-foreground">
+                    You (Initiator)
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Will receive payments
+                  </p>
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-sm font-bold text-primary">{splitAmount} cUSD</span>
+                <span className="text-sm font-bold text-primary">
+                  {splitAmount} cUSD
+                </span>
               </div>
             </CardContent>
           </Card>
 
           {members.map((member, index) => (
-            <Card key={index} className="border-border shadow-sm rounded-lg overflow-hidden bg-white">
+            <Card
+              key={index}
+              className="border-border shadow-sm rounded-lg overflow-hidden bg-white"
+            >
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-secondary/30 text-primary flex items-center justify-center text-xs font-bold">
                   {index + 1}
@@ -666,12 +770,16 @@ export default function CreateBill() {
                   <Input
                     placeholder="Friend's Name"
                     value={member.name}
-                    onChange={(e) => updateMember(index, "name", e.target.value)}
+                    onChange={(e) =>
+                      updateMember(index, "name", e.target.value)
+                    }
                     className="h-9 text-sm border-none bg-muted/10 focus-visible:ring-1 rounded-lg"
                   />
                 </div>
                 <div className="text-right flex items-center gap-2">
-                  <div className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-1 rounded-md">{splitAmount}</div>
+                  <div className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-1 rounded-md">
+                    {splitAmount}
+                  </div>
                   {members.length > 1 && (
                     <Button
                       variant="ghost"
@@ -698,9 +806,9 @@ export default function CreateBill() {
         </div>
       </div>
 
-      <div className="pt-4 pb-10">
+      <div>
         <Button
-          className="w-full rounded-xl text-sm font-bold shadow-lg shadow-primary/25 active:scale-[0.99] transition-transform h-12"
+          className="w-full rounded-xl text-sm font-bold active:scale-[0.99] transition-transform h-12"
           onClick={handleCreateBill}
           disabled={isCreating || !groupName || !totalAmount}
         >
@@ -709,10 +817,11 @@ export default function CreateBill() {
               <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               <span>Creating...</span>
             </div>
-          ) : "Create Bill & Get Links"}
+          ) : (
+            "Create Bill & Get Links"
+          )}
         </Button>
       </div>
     </div>
-  )
+  );
 }
-
