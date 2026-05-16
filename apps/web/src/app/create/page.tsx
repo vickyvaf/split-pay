@@ -44,7 +44,7 @@ export default function CreateBill() {
   const [totalAmount, setTotalAmount] = useState("");
   const [initiatorAmount, setInitiatorAmount] = useState("");
   const [splitMode, setSplitMode] = useState<"equal" | "custom">("equal");
-  const [members, setMembers] = useState([{ name: "", amount: "" }]);
+  const [members, setMembers] = useState([{ name: "", item: "", amount: "" }]);
   const [scanStep, setScanStep] = useState<"upload" | "processing" | "result">(
     "upload",
   );
@@ -53,81 +53,24 @@ export default function CreateBill() {
   const [isListening, setIsListening] = useState(false);
   const [autoStartVoice, setAutoStartVoice] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const resetForm = () => {
+    setGroupName("");
+    setTotalAmount("");
+    setInitiatorAmount("");
+    setSplitMode("equal");
+    setMembers([{ name: "", item: "", amount: "" }]);
+    setScanStep("upload");
+  };
   const router = useRouter();
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
-
-  const startListening = async () => {
-    if (mode === "ai") {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder.current = new MediaRecorder(stream);
-        audioChunks.current = [];
-
-        mediaRecorder.current.ondataavailable = (event) => {
-          audioChunks.current.push(event.data);
-        };
-
-        mediaRecorder.current.onstop = async () => {
-          const audioBlob = new Blob(audioChunks.current, { type: "audio/webm" });
-          handleAudioTranscription(audioBlob);
-          stream.getTracks().forEach((track) => track.stop());
-        };
-
-        mediaRecorder.current.start();
-        setIsListening(true);
-      } catch (err) {
-        console.error("Error accessing microphone:", err);
-        alert("Microphone access denied or not supported.");
-      }
-      return;
-    }
-
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Voice recognition is not supported in this browser.");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = (event: any) => {
-      console.error(event.error);
-      setIsListening(false);
-    };
-
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setGroupName((prev) => (prev ? `${prev} ${transcript}` : transcript));
-    };
-
-    recognition.start();
-  };
-
-  const stopListening = () => {
-    if (mediaRecorder.current && isListening) {
-      mediaRecorder.current.stop();
-      setIsListening(false);
-    }
-  };
-
-  const showToast = (message: string, type: "success" | "error" = "success") => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   const handleAudioTranscription = async (audioBlob: Blob) => {
     setScanStep("processing");
     try {
       const formData = new FormData();
-      formData.append("audio", audioBlob);
+      formData.append("audio", audioBlob, "audio.webm");
 
       const response = await fetch("/api/ai/transcribe", {
         method: "POST",
@@ -137,6 +80,12 @@ export default function CreateBill() {
       if (!response.ok) throw new Error("Transcription failed");
 
       const billData = await response.json();
+
+      if (!billData.members || billData.members.length === 0 || (!billData.totalAmount && !billData.initiatorAmount)) {
+        showToast("Please provide clearer text.", "error");
+        setScanStep("upload");
+        return;
+      }
       setGroupName(billData.groupName || "");
       setTotalAmount(billData.totalAmount?.toString() || "");
       setInitiatorAmount(billData.initiatorAmount?.toString() || "");
@@ -145,6 +94,7 @@ export default function CreateBill() {
       if (billData.members) {
         setMembers(billData.members.map((m: any) => ({
           name: m.name || "",
+          item: m.item || "",
           amount: m.amount?.toString() || ""
         })));
       }
@@ -154,6 +104,80 @@ export default function CreateBill() {
       showToast("Failed to process audio. Please try again.", "error");
       setScanStep("upload");
     }
+  };
+
+  const startListening = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder.current = new MediaRecorder(stream);
+      audioChunks.current = [];
+
+      mediaRecorder.current.ondataavailable = (event) => {
+        audioChunks.current.push(event.data);
+      };
+
+      mediaRecorder.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunks.current, { type: "audio/webm" });
+        handleAudioTranscription(audioBlob);
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      mediaRecorder.current.start();
+      setIsListening(true);
+    } catch (err) {
+      console.error("Error accessing microphone:", err);
+      showToast("Microphone access denied or not supported.", "error");
+    }
+  };
+
+  const stopListening = () => {
+    if (mediaRecorder.current && isListening) {
+      mediaRecorder.current.stop();
+      setIsListening(false);
+    }
+  };
+
+  const handleTextParsing = async (text: string) => {
+    setScanStep("processing");
+    try {
+      const response = await fetch("/api/ai/parse-text", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) throw new Error("Parsing failed");
+
+      const billData = await response.json();
+
+      if (!billData.members || billData.members.length === 0 || (!billData.totalAmount && !billData.initiatorAmount)) {
+        showToast("Please provide clearer text.", "error");
+        setScanStep("upload");
+        return;
+      }
+      setGroupName(billData.groupName || "");
+      setTotalAmount(billData.totalAmount?.toString() || "");
+      setInitiatorAmount(billData.initiatorAmount?.toString() || "");
+      setSplitMode(billData.splitMode || "equal");
+
+      if (billData.members) {
+        setMembers(billData.members.map((m: any) => ({
+          name: m.name || "",
+          item: m.item || "",
+          amount: m.amount?.toString() || ""
+        })));
+      }
+      setScanStep("result");
+    } catch (error) {
+      console.error("Parsing error:", error);
+      showToast("Failed to process text. Please try again.", "error");
+      setScanStep("upload");
+    }
+  };
+
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
   };
 
   const carouselItems: CarouselItem[] = [
@@ -202,7 +226,7 @@ export default function CreateBill() {
   }, [scanStep]);
 
   const addMember = () => {
-    setMembers([...members, { name: "", amount: "" }]);
+    setMembers([...members, { name: "", item: "", amount: "" }]);
   };
 
   const removeMember = (index: number) => {
@@ -217,7 +241,7 @@ export default function CreateBill() {
   };
 
   const calculatedTotal = splitMode === "custom"
-    ? (parseFloat(initiatorAmount) || 0) + members.reduce((sum, m) => sum + (parseFloat(m.amount) || 0), 0)
+    ? members.reduce((sum, m) => sum + (parseFloat(m.amount) || 0), 0)
     : parseFloat(totalAmount) || 0;
 
   const splitAmount = splitMode === "equal"
@@ -350,7 +374,7 @@ export default function CreateBill() {
                     setMode("ai");
                     setScanStep("upload");
                   }}
-                  className="flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2.5 text-xs font-bold  tracking-wider text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5"
                 >
                   <MessageSquare className="h-3 w-3" />
                   Chat
@@ -362,7 +386,7 @@ export default function CreateBill() {
                     setScanStep("upload");
                     setAutoStartVoice(true);
                   }}
-                  className="flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2.5 text-xs font-bold  tracking-wider text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5"
                 >
                   <Mic className="h-3 w-3" />
                   Voice
@@ -424,7 +448,7 @@ export default function CreateBill() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4 space-y-0.5 text-white">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">
+                  <p className="text-xs font-bold  tracking-[0.2em] opacity-80">
                     {item.label}
                   </p>
                   <h2 className="text-xl font-bold tracking-tight">
@@ -452,7 +476,7 @@ export default function CreateBill() {
         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
           <button
             onClick={() => setMode("choice")}
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
+            className="flex items-center gap-2 text-xs font-bold  tracking-wider text-muted-foreground hover:text-primary transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Options
@@ -525,12 +549,12 @@ export default function CreateBill() {
               <div className="relative">
                 <div className="h-32 w-32 rounded-full border-4 border-primary/10 border-t-primary animate-spin" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Sparkles className="h-12 w-12 text-primary animate-pulse" />
+                  <div className="h-12 w-12 text-primary animate-pulse" />
                 </div>
               </div>
               <div className="text-center space-y-3">
                 <h3 className="text-xl font-bold tracking-tight">
-                  AI is Thinking...
+                  Thinking...
                 </h3>
                 <div className="flex flex-col gap-1">
                   <p className="text-sm text-muted-foreground">
@@ -548,21 +572,21 @@ export default function CreateBill() {
 
           {scanStep === "result" && (
             <div className="space-y-8 animate-in zoom-in-95 duration-500">
-              <div className="relative overflow-hidden rounded-2xl bg-primary p-6 text-white shadow-xl shadow-primary/20">
+              <div className="relative overflow-hidden rounded-2xl bg-primary p-6 text-white">
                 <div className="absolute -right-4 -bottom-4 opacity-10">
                   <CheckCircle2 className="h-32 w-32" />
                 </div>
                 <div className="relative flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  {/* <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                     <CheckCircle2 className="h-7 w-7" />
-                  </div>
+                  </div> */}
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">
+                    <p className="text-xs font-bold  tracking-widest opacity-80">
                       Scan Successful
                     </p>
                     <div className="flex items-baseline gap-1">
                       <span className="text-3xl font-bold">{calculatedTotal.toFixed(2)}</span>
-                      <span className="text-sm font-bold opacity-80 uppercase">
+                      <span className="text-sm font-bold opacity-80 ">
                         cUSD
                       </span>
                     </div>
@@ -572,7 +596,7 @@ export default function CreateBill() {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                  <Label className="text-xs font-bold  tracking-wider text-muted-foreground ml-1">
                     Group Name
                   </Label>
                   <Input
@@ -584,26 +608,26 @@ export default function CreateBill() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                    <Label className="text-xs font-bold  tracking-wider text-muted-foreground ml-1">
                       Split Mode
                     </Label>
                     <div className="flex bg-muted/20 p-1 rounded-lg">
                       <button
                         onClick={() => setSplitMode("equal")}
-                        className={`flex-1 py-1 text-[10px] font-bold rounded-md transition-all ${splitMode === "equal" ? "bg-white shadow-sm text-primary" : "text-muted-foreground"}`}
+                        className={`flex-1 py-1 text-xs font-bold rounded-md transition-all ${splitMode === "equal" ? "bg-white shadow-sm text-primary" : "text-muted-foreground"}`}
                       >
                         EQUAL
                       </button>
                       <button
                         onClick={() => setSplitMode("custom")}
-                        className={`flex-1 py-1 text-[10px] font-bold rounded-md transition-all ${splitMode === "custom" ? "bg-white shadow-sm text-primary" : "text-muted-foreground"}`}
+                        className={`flex-1 py-1 text-xs font-bold rounded-md transition-all ${splitMode === "custom" ? "bg-white shadow-sm text-primary" : "text-muted-foreground"}`}
                       >
                         CUSTOM
                       </button>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                    <Label className="text-xs font-bold  tracking-wider text-muted-foreground ml-1">
                       {splitMode === "equal" ? "Total Amount" : "Total (Sum)"}
                     </Label>
                     <Input
@@ -622,9 +646,9 @@ export default function CreateBill() {
                 </div>
               </div>
 
-              <div className="space-y-3 pt-4">
+              <div className="space-y-3">
                 <Button
-                  className="w-full rounded-xl text-sm font-bold shadow-md shadow-primary/20 h-12"
+                  className="w-full rounded-xl text-sm font-bold h-12"
                   onClick={() => setMode("manual")}
                 >
                   Next: Add Participants
@@ -646,8 +670,11 @@ export default function CreateBill() {
       {mode === "ai" && (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
           <button
-            onClick={() => setMode("choice")}
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
+            onClick={() => {
+              setMode("choice");
+              resetForm();
+            }}
+            className="flex items-center gap-2 text-xs font-bold  tracking-wider text-muted-foreground hover:text-primary transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Options
@@ -689,9 +716,9 @@ export default function CreateBill() {
 
               <Button
                 className="w-full rounded-xl text-sm font-bold h-12"
-                onClick={() => setScanStep("processing")}
+                onClick={() => handleTextParsing(groupName)}
               >
-                Generate Bill
+                Continue
               </Button>
             </div>
           )}
@@ -701,7 +728,7 @@ export default function CreateBill() {
               <div className="relative">
                 <div className="h-32 w-32 rounded-full border-4 border-primary/10 border-t-primary animate-spin" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Sparkles className="h-12 w-12 text-primary animate-pulse" />
+                  <div className="h-12 w-12 text-primary animate-pulse" />
                 </div>
               </div>
               <div className="text-center space-y-3">
@@ -716,22 +743,22 @@ export default function CreateBill() {
           )}
 
           {scanStep === "result" && (
-            <div className="space-y-8 animate-in zoom-in-95 duration-500">
-              <div className="relative overflow-hidden rounded-2xl bg-primary p-6 text-white shadow-xl shadow-primary/20">
+            <div className="space-y-6 animate-in zoom-in-95 duration-500">
+              <div className="relative overflow-hidden rounded-2xl bg-primary p-6 text-white">
                 <div className="absolute -right-4 -bottom-4 opacity-10">
                   <CheckCircle2 className="h-32 w-32" />
                 </div>
                 <div className="relative flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  {/* <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                     <Sparkles className="h-7 w-7" />
-                  </div>
+                  </div> */}
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">
-                      AI Extraction Success
+                    <p className="text-xs font-bold tracking-widest opacity-80">
+                      Total Expense
                     </p>
                     <div className="flex items-baseline gap-1">
                       <span className="text-3xl font-bold">{calculatedTotal.toFixed(2)}</span>
-                      <span className="text-sm font-bold opacity-80 uppercase">
+                      <span className="text-sm font-bold opacity-80">
                         cUSD
                       </span>
                     </div>
@@ -741,8 +768,8 @@ export default function CreateBill() {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                    Detected Name
+                  <Label className="text-xs font-bold  tracking-wider text-muted-foreground ml-1">
+                    Group Name
                   </Label>
                   <Input
                     value={groupName}
@@ -750,37 +777,66 @@ export default function CreateBill() {
                     className="h-12 rounded-xl bg-white border-border focus:border-primary font-bold text-sm"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                    Detected Amount (cUSD)
+
+                <div className="space-y-3">
+                  <Label className="text-xs font-bold  tracking-wider text-muted-foreground ml-1">
+                    Participants & Shares
                   </Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={totalAmount}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val !== "" && parseFloat(val) < 0) return;
-                      setTotalAmount(val);
-                    }}
-                    className="h-12 rounded-xl bg-white border-border focus:border-primary font-bold text-lg"
-                  />
+
+                  {/* Members List */}
+                  {members.map((member, index) => (
+                    <div key={index} className="flex items-center gap-3 bg-white p-4 rounded-xl border border-border shadow-sm">
+                      <div className="mb-auto mt-1.5 h-8 w-8 rounded-lg bg-secondary/30 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1">
+                        <Input
+                          value={member.name}
+                          onChange={(e) => updateMember(index, "name", e.target.value)}
+                          placeholder="Name"
+                          className="h-7 border-none bg-transparent focus-visible:ring-0 p-0 text-sm font-bold placeholder:opacity-40"
+                        />
+                        <div className="flex flex-col gap-0.5 opacity-60">
+                          <span className="text-xs tracking-tighter">Description:</span>
+                          <textarea
+                            value={member.item}
+                            onChange={(e) => updateMember(index, "item", e.target.value)}
+                            onInput={(e) => {
+                              e.currentTarget.style.height = "auto";
+                              e.currentTarget.style.height = e.currentTarget.scrollHeight + "px";
+                            }}
+                            placeholder="Item name"
+                            rows={1}
+                            className="w-full border-none bg-transparent focus:ring-0 p-0 text-xs tracking-tighter placeholder:opacity-40 resize-none overflow-hidden leading-tight"
+                            ref={(el) => {
+                              if (el) {
+                                el.style.height = "auto";
+                                el.style.height = el.scrollHeight + "px";
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="shrink-0">
+                        <Input
+                          type="number"
+                          value={member.amount}
+                          onChange={(e) => updateMember(index, "amount", e.target.value)}
+                          className="h-10 w-24 text-right text-sm font-bold bg-secondary/20 border-none focus-visible:ring-1 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="space-y-3 pt-4">
+              <div className="space-y-3">
                 <Button
-                  className="w-full rounded-xl text-sm font-bold shadow-md shadow-primary/20 h-12"
-                  onClick={() => setMode("manual")}
+                  className="w-full rounded-xl text-sm font-bold h-12"
+                  onClick={handleCreateBill}
+                  disabled={isCreating}
                 >
-                  Confirm & Continue
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full text-muted-foreground font-bold text-xs"
-                  onClick={() => setScanStep("upload")}
-                >
-                  Edit Text
+                  {isCreating ? "Creating Bill..." : "Generate Bill"}
                 </Button>
               </div>
             </div>
@@ -793,8 +849,11 @@ export default function CreateBill() {
         <div className="space-y-3 animate-in fade-in slide-in-from-right-4 duration-500">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => setMode("choice")}
-              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
+              onClick={() => {
+                setMode("choice");
+                resetForm();
+              }}
+              className="flex items-center gap-2 text-xs font-bold  tracking-wider text-muted-foreground hover:text-primary transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back To Options
@@ -852,11 +911,11 @@ export default function CreateBill() {
 
           <div className="space-y-3">
             <div className="flex justify-between items-center px-1">
-              <h2 className="text-[10px] font-bold flex items-center gap-2 uppercase tracking-widest text-muted-foreground">
+              <h2 className="text-xs font-bold flex items-center gap-2  tracking-widest text-muted-foreground">
                 <Users className="h-3.5 w-3.5 text-primary" />
                 Participants
               </h2>
-              <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold  tracking-wider">
                 {members.length + 1} People
               </span>
             </div>
@@ -873,7 +932,7 @@ export default function CreateBill() {
                       <p className="text-xs font-bold text-foreground">
                         You (Initiator)
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         Will receive payments
                       </p>
                     </div>
@@ -917,7 +976,7 @@ export default function CreateBill() {
                     </div>
                     <div className="text-right flex items-center gap-2">
                       {splitMode === "equal" ? (
-                        <div className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-1 rounded-md">
+                        <div className="text-xs font-bold text-primary bg-primary/5 px-2 py-1 rounded-md">
                           {splitAmount}
                         </div>
                       ) : (

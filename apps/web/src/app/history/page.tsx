@@ -77,7 +77,7 @@ export default function HistoryPage() {
                 <div className="p-4 flex-1 flex items-center justify-between">
                   <div className="space-y-1">
                     <h4 className="font-medium text-sm text-foreground">{item.groupName || item.name}</h4>
-                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground font-bold tracking-wider">
                       <span>
                         {item.date.includes(':') ? item.date : new Date(item.id).toLocaleDateString('en-GB', {
                           day: '2-digit',
@@ -87,10 +87,10 @@ export default function HistoryPage() {
                           minute: '2-digit'
                         })}
                       </span>
-                      <span>•</span>
+                      {/* <span>•</span>
                       <span className={item.type === "initiated" ? "text-primary" : "text-orange-600"}>
                         {item.type === "initiated" ? "You Sent" : "You Paid"}
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export default function HistoryPage() {
                         ) : (
                           <Clock className="h-3 w-3 text-orange-500" />
                         )}
-                        <span className={`text-[10px] font-bold uppercase ${item.status === "Completed" ? "text-green-600" : "text-orange-500"}`}>
+                        <span className={`text-xs font-bold ${item.status === "Completed" ? "text-green-600" : "text-orange-500"}`}>
                           {item.status}
                         </span>
                       </div>
@@ -141,27 +141,27 @@ export default function HistoryPage() {
               <div className="p-6 space-y-6 overflow-y-auto flex-1">
                 <div className="flex justify-between items-center bg-muted/30 p-4 rounded-2xl">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Amount</p>
+                    <p className="text-xs font-bold tracking-wider text-muted-foreground">Total Amount</p>
                     <p className="text-2xl font-bold text-foreground">{formatAmount(selectedItem.totalAmount || selectedItem.amount)} cUSD</p>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${selectedItem.status === "Completed" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
+                  <div className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider ${selectedItem.status === "Completed" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
                     }`}>
                     {selectedItem.status}
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                  <h3 className="text-xs font-bold tracking-widest text-muted-foreground flex items-center gap-2">
                     <Users className="h-3.5 w-3.5 text-primary" />
                     Participants
                   </h3>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/10 rounded-xl">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-lg bg-primary text-white flex items-center justify-center text-[10px] font-bold">ME</div>
+                        <div className="h-8 w-8 rounded-lg bg-primary text-white flex items-center justify-center text-xs font-bold">ME</div>
                         <div>
                           <p className="text-xs font-bold">You (Initiator)</p>
-                          <p className="text-[10px] text-muted-foreground">Will receive payments</p>
+                          <p className="text-xs text-muted-foreground">Will receive payments</p>
                         </div>
                       </div>
                       <p className="text-xs font-bold text-primary">
@@ -172,10 +172,10 @@ export default function HistoryPage() {
                     {selectedItem.members?.map((member, idx) => (
                       <div key={idx} className="flex items-center justify-between p-3 border border-border rounded-xl">
                         <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-lg bg-secondary/30 text-primary flex items-center justify-center text-[10px] font-bold">{idx + 1}</div>
+                          <div className="h-8 w-8 rounded-lg bg-secondary/30 text-primary flex items-center justify-center text-xs font-bold">{idx + 1}</div>
                           <div>
                             <p className="text-xs font-bold">{member.name || "Anonymous"}</p>
-                            <p className="text-[10px] text-muted-foreground truncate max-w-[150px]">{member.address || "No address"}</p>
+                            <p className="text-xs text-muted-foreground truncate max-w-[150px]">{member.address || "No address"}</p>
                           </div>
                         </div>
                         <p className="text-xs font-bold text-foreground">
@@ -187,13 +187,13 @@ export default function HistoryPage() {
                 </div>
 
                 <div className="pt-2">
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-4">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground font-bold tracking-widest mb-4">
                     <Clock className="h-3 w-3" />
                     Transaction Details
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Date Created</p>
+                      <p className="text-xs text-muted-foreground font-medium tracking-wider">Date Created</p>
                       <p className="text-xs font-bold">
                         {selectedItem.date.includes(':') ? selectedItem.date : new Date(selectedItem.id).toLocaleDateString('en-GB', {
                           day: '2-digit',
@@ -205,7 +205,7 @@ export default function HistoryPage() {
                       </p>
                     </div>
                     <div className="space-y-1 text-right">
-                      <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Type</p>
+                      <p className="text-xs text-muted-foreground font-medium tracking-wider">Type</p>
                       <p className="text-xs font-bold capitalize">{selectedItem.type}</p>
                     </div>
                   </div>
@@ -215,7 +215,7 @@ export default function HistoryPage() {
                   {!showDeleteConfirm ? (
                     <Button
                       variant="destructive"
-                      className="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                      className="w-full py-3 rounded-xl text-xs font-bold tracking-widest transition-colors flex items-center justify-center gap-2"
                       onClick={() => setShowDeleteConfirm(true)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -223,20 +223,20 @@ export default function HistoryPage() {
                     </Button>
                   ) : (
                     <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                      <p className="text-[10px] text-center font-bold text-destructive uppercase tracking-widest">
+                      <p className="text-xs text-center font-bold text-destructive tracking-widest">
                         Are you sure you want to delete this?
                       </p>
                       <div className="flex gap-2">
                         <Button
                           variant="destructive"
-                          className="flex-1 py-3 rounded-xl text-[10px] font-bold uppercase"
+                          className="flex-1 py-3 rounded-xl text-xs font-bold "
                           onClick={() => handleDelete(selectedItem.id)}
                         >
                           Delete
                         </Button>
                         <Button
                           variant="outline"
-                          className="flex-1 py-3 rounded-xl text-[10px] font-bold uppercase bg-white"
+                          className="flex-1 py-3 rounded-xl text-xs font-bold bg-white"
                           onClick={() => setShowDeleteConfirm(false)}
                         >
                           Cancel
@@ -249,7 +249,7 @@ export default function HistoryPage() {
                       setIsDetailOpen(false)
                       setShowDeleteConfirm(false)
                     }}
-                    className="w-full bg-muted/50 hover:bg-muted py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors text-muted-foreground"
+                    className="w-full bg-muted/50 hover:bg-muted py-3 rounded-xl text-xs font-bold tracking-widest transition-colors text-muted-foreground"
                   >
                     Close Details
                   </button>

@@ -84,7 +84,7 @@ export default function Home() {
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-sm text-foreground">{formatAmount(bill.amount)} cUSD</div>
-                    <div className={`text-[10px] font-bold uppercase tracking-wider ${bill.status === "Active" ? "text-orange-500" : "text-green-500"}`}>{bill.status}</div>
+                    <div className={`text-xs font-bold tracking-wider ${bill.status === "Active" ? "text-orange-500" : "text-green-500"}`}>{bill.status}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -92,7 +92,7 @@ export default function Home() {
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center space-y-2 bg-muted/5 rounded-2xl border border-dashed border-border/50">
               <p className="text-xs font-bold text-muted-foreground">No recent bills found</p>
-              <p className="text-[10px] text-muted-foreground/60">Create your first bill to see it here</p>
+              <p className="text-xs text-muted-foreground/60">Create your first bill to see it here</p>
             </div>
           )}
         </div>

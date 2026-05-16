@@ -80,7 +80,7 @@ export function Footer() {
               <TwitterXIcon size={18} />
             </Link>
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
             © 2026 SplitPay • Built on Celo
           </p>
         </div>

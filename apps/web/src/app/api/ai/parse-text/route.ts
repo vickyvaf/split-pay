@@ -7,25 +7,14 @@ const groq = new Groq({
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
-    const audioFile = formData.get("audio") as File;
+    const { text } = await req.json();
 
-    if (!audioFile) {
-      return NextResponse.json({ error: "No audio file provided" }, { status: 400 });
+    if (!text) {
+      return NextResponse.json({ error: "No text provided" }, { status: 400 });
     }
 
-    // 1. Transcribe Audio using Groq Whisper
-    const transcription = await groq.audio.transcriptions.create({
-      file: audioFile,
-      model: "whisper-large-v3",
-      response_format: "text",
-    });
-
-    const text = transcription;
-
-    // 2. Parse Text into JSON using Groq Llama
     const prompt = `
-      Analyze this transcribed text and extract billing information for a split-pay application.
+      Analyze this text and extract billing information for a split-pay application.
       Text: "${text}"
       
       Return the data strictly in JSON format with the following structure:
@@ -55,11 +44,14 @@ export async function POST(req: NextRequest) {
       response_format: { type: "json_object" },
     });
 
-    const billData = JSON.parse(completion.choices[0]?.message?.content || "{}");
+    const aiText = completion.choices[0]?.message?.content;
+    if (!aiText) {
+      throw new Error("No response from Groq");
+    }
 
-    return NextResponse.json(billData);
+    return NextResponse.json(JSON.parse(aiText));
   } catch (error: any) {
-    console.error("Groq Transcription/Parsing Error:", error);
+    console.error("Groq Parsing Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

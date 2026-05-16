@@ -40,7 +40,7 @@ export function BottomNav() {
                   )}
                 />
                 <span className={cn(
-                  "text-[11px] font-semibold tracking-tight transition-all",
+                  "text-xs font-semibold tracking-tight transition-all",
                   isActive ? "opacity-100" : "opacity-80"
                 )}>
                   {item.name}

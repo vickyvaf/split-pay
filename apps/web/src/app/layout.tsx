@@ -21,8 +21,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-background text-foreground min-h-screen`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className} bg-background text-foreground min-h-screen`} suppressHydrationWarning>
         <WalletProvider>
           <ChatProvider>
             <div className="min-h-screen flex flex-col">

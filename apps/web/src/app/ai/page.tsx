@@ -194,7 +194,7 @@ export default function AIAgent() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleRetry(msg.content)}
-                      className="h-7 text-[9px] font-bold uppercase tracking-widest gap-1.5 rounded-lg border-primary/20 text-primary hover:bg-primary/5 hover:text-primary bg-white/50"
+                      className="h-7 text-[9px] font-bold tracking-widest gap-1.5 rounded-lg border-primary/20 text-primary hover:bg-primary/5 hover:text-primary bg-white/50"
                     >
                       <RefreshCw className="h-2.5 w-2.5" />
                       Retry
@@ -203,7 +203,7 @@ export default function AIAgent() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleEdit(msg.content)}
-                      className="h-7 text-[9px] font-bold uppercase tracking-widest gap-1.5 rounded-lg border-border text-muted-foreground hover:bg-secondary hover:text-primary bg-white/50"
+                      className="h-7 text-[9px] font-bold tracking-widest gap-1.5 rounded-lg border-border text-muted-foreground hover:bg-secondary hover:text-primary bg-white/50"
                     >
                       <Pencil className="h-2.5 w-2.5" />
                       Edit
@@ -231,7 +231,7 @@ export default function AIAgent() {
         {/* Suggestions */}
         {messages.length === 1 && (
           <div className="mt-8">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2 px-1">Try asking:</p>
+            <p className="text-xs font-bold text-muted-foreground tracking-wider mb-2 px-1">Try asking:</p>
             <div className="flex flex-wrap gap-2">
               {suggestions.map((s, i) => (
                 <button
@@ -257,7 +257,7 @@ export default function AIAgent() {
                 variant="outline"
                 size="sm"
                 onClick={startNewChat}
-                className={`h-8 text-[10px] font-bold uppercase tracking-wider rounded-lg border-primary/20 text-primary bg-primary/5 gap-1.5 ${!currentSessionId ? 'ring-1 ring-primary/30' : ''}`}
+                className={`h-8 text-xs font-bold tracking-wider rounded-lg border-primary/20 text-primary bg-primary/5 gap-1.5 ${!currentSessionId ? 'ring-1 ring-primary/30' : ''}`}
               >
                 <Plus className="h-3 w-3" />
                 New
@@ -275,7 +275,7 @@ export default function AIAgent() {
                 >
                   <button
                     onClick={() => loadSession(s)}
-                    className={`px-3 py-1.5 text-[11px] font-medium whitespace-nowrap flex items-center gap-2 ${currentSessionId === s.id ? "text-white" : "text-muted-foreground hover:text-foreground"
+                    className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap flex items-center gap-2 ${currentSessionId === s.id ? "text-white" : "text-muted-foreground hover:text-foreground"
                       }`}
                   >
                     <MessageSquare className={`h-3 w-3 ${currentSessionId === s.id ? "text-white" : "text-muted-foreground"}`} />
@@ -297,7 +297,7 @@ export default function AIAgent() {
               ))}
 
               {sessions.length === 0 && (
-                <div className="text-[10px] text-muted-foreground italic px-2 flex items-center gap-1.5">
+                <div className="text-xs text-muted-foreground italic px-2 flex items-center gap-1.5">
                   <Clock className="h-3 w-3" />
                   No previous chats
                 </div>

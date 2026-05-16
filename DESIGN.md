@@ -11,7 +11,7 @@ The system uses **Inter** as the primary typeface. Font scaling is handled via T
 | **Headline Medium** | `text-lg` | 18px | Semi-Bold (600) | Section headers (e.g., Recent Bills) |
 | **Body Large** | `text-sm` | 14px | Medium (500) | Card titles, Primary UI labels |
 | **Body Medium** | `text-xs` | 12px | Regular (400) | Subtitles, Secondary descriptions |
-| **Label Small** | `text-[10px]` | 10px | Bold (700) | Status badges, All-caps labels |
+| **Label Small** | `text-xs` | 10px | Bold (700) | Status badges, All-caps labels |
 
 ## Color Palette
 The palette uses CSS variables for semantic mapping, centered around MiniPay Green.
