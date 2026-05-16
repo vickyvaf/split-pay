@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { History, CheckCircle2, Clock, ChevronRight, Users } from "lucide-react"
+import { History, CheckCircle2, Clock, ChevronRight, Users, Trash2 } from "lucide-react"
 import { formatAmount } from "@/lib/app-utils"
+import { Button } from "@/components/ui/button"
 
 import {
   Sheet,
@@ -40,6 +41,13 @@ export default function HistoryPage() {
     }
   }, [])
 
+  const handleDelete = (id: number) => {
+    const updatedHistory = history.filter(item => item.id !== id)
+    setHistory(updatedHistory)
+    localStorage.setItem("billing_history", JSON.stringify(updatedHistory))
+    setIsDetailOpen(false)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -49,8 +57,8 @@ export default function HistoryPage() {
       <div className="space-y-3">
         {history.length > 0 ? (
           history.map((item) => (
-            <Card 
-              key={item.id} 
+            <Card
+              key={item.id}
               className="border-border shadow-sm overflow-hidden active:bg-muted transition-colors cursor-pointer rounded-lg"
               onClick={() => {
                 setSelectedItem(item)
@@ -64,9 +72,9 @@ export default function HistoryPage() {
                     <h4 className="font-medium text-sm text-foreground">{item.name}</h4>
                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
                       <span>
-                        {item.date.includes(':') ? item.date : new Date(item.id).toLocaleDateString('en-GB', { 
-                          day: '2-digit', 
-                          month: 'short', 
+                        {item.date.includes(':') ? item.date : new Date(item.id).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
                           year: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit'
@@ -78,7 +86,7 @@ export default function HistoryPage() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <div className="text-right">
                       <p className="font-bold text-sm text-foreground">{formatAmount(item.amount)} cUSD</p>
                       <div className="flex items-center justify-end gap-1">
@@ -112,23 +120,22 @@ export default function HistoryPage() {
       </div>
 
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <SheetContent side="bottom" className="rounded-t-3xl p-0 overflow-hidden border-none max-h-[90vh]">
+        <SheetContent side="bottom" className="rounded-t-3xl p-0 overflow-hidden border-none max-h-[90vh] flex flex-col">
           {selectedItem && (
-            <div className="flex flex-col h-full bg-white">
+            <div className="flex flex-col flex-1 bg-white overflow-hidden">
               <div className={`h-24 ${selectedItem.status === "Completed" ? "bg-primary" : "bg-orange-500"} p-6 flex items-end relative`}>
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-1 bg-white/20 rounded-full" />
                 <h2 className="text-white text-xl font-bold">{selectedItem.name}</h2>
               </div>
-              
+
               <div className="p-6 space-y-6 overflow-y-auto flex-1">
                 <div className="flex justify-between items-center bg-muted/30 p-4 rounded-2xl">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Amount</p>
                     <p className="text-2xl font-bold text-foreground">{formatAmount(selectedItem.amount)} cUSD</p>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                    selectedItem.status === "Completed" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
-                  }`}>
+                  <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${selectedItem.status === "Completed" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
+                    }`}>
                     {selectedItem.status}
                   </div>
                 </div>
@@ -178,9 +185,9 @@ export default function HistoryPage() {
                     <div className="space-y-1">
                       <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Date Created</p>
                       <p className="text-xs font-bold">
-                        {selectedItem.date.includes(':') ? selectedItem.date : new Date(selectedItem.id).toLocaleDateString('en-GB', { 
-                          day: '2-digit', 
-                          month: 'short', 
+                        {selectedItem.date.includes(':') ? selectedItem.date : new Date(selectedItem.id).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
                           year: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit'
@@ -194,10 +201,18 @@ export default function HistoryPage() {
                   </div>
                 </div>
 
-                <div className="pt-4 pb-12">
-                  <button 
+                <div className="pt-4 flex flex-col gap-3">
+                  <Button
+                    variant="destructive"
+                    className="w-full py-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                    onClick={() => handleDelete(selectedItem.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete History
+                  </Button>
+                  <button
                     onClick={() => setIsDetailOpen(false)}
-                    className="w-full bg-muted/50 hover:bg-muted py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors"
+                    className="w-full bg-muted/50 hover:bg-muted py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors text-muted-foreground"
                   >
                     Close Details
                   </button>
